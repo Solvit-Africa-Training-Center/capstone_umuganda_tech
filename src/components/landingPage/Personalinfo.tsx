@@ -46,8 +46,7 @@ const Personalinfo = () => {
   };
 
   return (
-    <div className="flex flex-col p-10 bg-white font-opensans relative">
-      {/* Title Section */}
+    <div className="flex flex-col p-10 bg-gray-50 font-opensans relative">
       <div className="w-full flex flex-col justify-center text-center gap-5">
         <h1 className="text-h1 font-bold">What Our Community Says</h1>
         <p className="text-[#464646] text-lg mb-10 text-[20px]">
@@ -55,18 +54,14 @@ const Personalinfo = () => {
           the positive impact of UmugandaTech
         </p>
       </div>
-
-      {/* Horizontal Scroll Cards with Side Icons */}
+    
       <div className="relative">
-        {/* Left Icon */}
         <button
           onClick={() => scroll("left")}
           className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"
         >
           <MdChevronLeft size={30} />
         </button>
-
-        {/* Scrollable Cards */}
         <div
           ref={scrollRef}
           className="w-full overflow-x-hidden scrollbar-hide"
@@ -84,8 +79,6 @@ const Personalinfo = () => {
             ))}
           </div>
         </div>
-
-        {/* Right Icon */}
         <button
           onClick={() => scroll("right")}
           className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"

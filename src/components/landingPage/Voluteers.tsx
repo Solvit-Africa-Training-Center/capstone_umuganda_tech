@@ -45,8 +45,7 @@ const Voluteers = () => {
   };
 
   return (
-    <div className="flex flex-col p-10 bg-white relative">
-      {/* Title Section */}
+    <div className="flex flex-col p-10 bg-gray-50 relative">
       <div className="w-full flex flex-col justify-center text-center gap-5 mb-10">
         <h1 className="text-[40px] font-bold">For Citizen Volunteers</h1>
         <p className="text-[#464646] text-lg max-w-2xl mx-auto">
@@ -54,18 +53,13 @@ const Voluteers = () => {
           recognized for your invaluable effort in building a stronger Rwanda.
         </p>
       </div>
-
-      {/* Horizontal Scroll with Side Icons */}
       <div className="relative">
-        {/* Left Icon */}
         <button
           onClick={() => scroll("left")}
           className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"
         >
           <MdChevronLeft size={30} />
         </button>
-
-        {/* Scrollable Cards */}
         <div
           ref={scrollRef}
           className="w-full overflow-x-hidden snap-x snap-mandatory"
@@ -81,8 +75,6 @@ const Voluteers = () => {
             ))}
           </div>
         </div>
-
-        {/* Right Icon */}
         <button
           onClick={() => scroll("right")}
           className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 z-10 hover:bg-gray-100"

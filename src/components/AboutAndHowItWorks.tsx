@@ -43,8 +43,6 @@ const AboutAndHowItWorks: React.FC = () => {
   return (
     <section className="font-opensans bg-gray-50 py-16 px-6 md:px-12">
       <AboutUs/>
-
-      {/* How It Works */}
       <div className="max-w-5xl mx-auto flex flex-col items-center">
         <h2 className="text-h1 text-text-secondary font-semibold text-center mb-8">
           How It Works

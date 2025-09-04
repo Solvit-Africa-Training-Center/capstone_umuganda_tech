@@ -1,10 +1,10 @@
 const Address = () => {
   return (
-    <div className='flex  justify-center    '>
-        <div className='flex flex-col gap-5 lg:gap-40 w-[83%]  justify-between lg:flex-row lg:justify-between '>
+    <div className='flex  justify-center'>
+        <div className='flex flex-col gap-5 lg:gap-40 w-[83%] bg-gray-50  justify-between lg:flex-row lg:justify-between '>
             <div className='flex flex-col items-center  lg:w-[441px] '>
                 <div className='flex  items-center justify-start lg:pr-[120px]'>
-                    <img src="Umuganda.png" className='w-[137px] h-[134px]' alt="" />
+                    <img src="Umuganda.png" className='w-[60px] h-[60px]' alt="" />
                     <h1 className='font-bold text-primaryColor-900 text-[20px]'>UmugandaTech</h1>
                 </div>
                 <p className='text-center  text-[18px] lg:text-start'>Digitizing and enhancing Rwanda’s traditiona,

@@ -5,12 +5,18 @@ import Projects from './pages/Projects';
 import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import Footer from "./components/landingPage/Footer"
+
+
+
 
 function Layout() {
   return (
     <>
       <NavBar />
       <Outlet />
+    <Footer />
+
     </>
   );
 }

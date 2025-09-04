@@ -25,8 +25,15 @@ const CarouselSteps: React.FC = () => {
   const next = () => setIndex(i => Math.min(steps.length - 1, i + 1));
   
   return (
-    <div className="relative w-full overflow-hidden bg-gray-50 pb-20 font-opensans">
-      {/* Slides Container */}
+    <div className="relative w-full  overflow-hidden bg-gray-50 pb-20 font-opensans">
+      <div>
+        <h1 className='text-h1 font-semibold text-center mb-4 mt-10'>
+          For Community Leaders
+        </h1>
+        <p className='text-start text-gray-600 text-lg md:w-[904px] mx-auto mb-10 px-4'>
+          Streamline your operations and amplify with powerful tools designed for efficent project management and volunteer engagement.
+        </p>
+      </div>
       <div
         className="flex transition-transform duration-500 "
         style={{ transform: `translateX(-${index * (100 / 3)}%)` }}

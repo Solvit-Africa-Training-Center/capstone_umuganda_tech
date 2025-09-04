@@ -8,7 +8,7 @@ import Personalinfo from "../components/landingPage/Personalinfo"
 
 const Home = () =>{
   return (
-    <div >
+    <div className="font-opensans">
       <HeroSection />
       <AboutAndHowItWorks />
       <CarouselSteps />

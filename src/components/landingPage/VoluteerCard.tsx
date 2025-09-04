@@ -13,7 +13,7 @@ const VoluteerCard: React.FC<VoluteerProps> = ({ icon, Name, description }) => {
       <div className="text-green-700  mb-4">{icon}</div>
 
       {/* Title */}
-      <h1 className="font-semi text-[40px] mb-2 ">{Name}</h1>
+      <h1 className="font-semibold text-h3 mb-2 ">{Name}</h1>
 
       {/* Description */}
       <p className="text-[#464646] text-[18px] leading-relaxed">{description}</p>

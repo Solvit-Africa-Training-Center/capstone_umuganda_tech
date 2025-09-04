@@ -8,16 +8,12 @@ import Personalinfo from "../components/landingPage/Personalinfo"
 
 const Home = () =>{
   return (
-    <div >
-      <HeroSection />
-      <AboutAndHowItWorks />
-      <CarouselSteps />
-      <div className="grid grid-cols-1">
-      <Voluteers/>
-      <Personalinfo/>
-      <Participate/> 
-    </div>
-    </div>
+    < >
+    <HeroSection />
+      <section id="about_us"><AboutAndHowItWorks /></section>
+<section id="how_it_works"><CarouselSteps /></section>
+<section id="projects"><Voluteers /><Personalinfo /><Participate /></section>
+    </>
   )
 }
 

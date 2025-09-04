@@ -46,7 +46,7 @@ const CarouselSteps: React.FC = () => {
               ) : (
                 <div className="mb-4">{step.iconComponent}</div>
               )}
-              <h3 className="text-h1 font-semibold mb-2">{step.title}</h3>
+              <h3 className="text-h3 font-semibold mb-2">{step.title}</h3>
               <p className="text-gray-600 text-base max-w-[240px]">{step.description}</p>
             </div>
           </div>

@@ -1,24 +1,40 @@
+import { BrowserRouter as Router, Routes, Route,Outlet } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import LandingPage from './pages/Home';
+import Projects from './pages/Projects';
+import HowItWorks from './pages/HowItWorks';
+import About from './pages/About';
+import NotFound from './pages/NotFound';
 import Footer from "./components/landingPage/Footer"
-import Participate from "./components/landingPage/Participate"
-import Personalinfo from "./components/landingPage/Personalinfo"
-import Voluteers from "./components/landingPage/Voluteers"
 
 
 
-function App() {
 
-
+function Layout() {
   return (
     <>
-    <div className="grid grid-cols-1">
-      <Voluteers/>
-      <Personalinfo/>
-      <Participate/>
-      <Footer/>
-    </div>
-     
+      <NavBar />
+      <Outlet />
+    <Footer />
+
     </>
-  )
+  );
 }
 
-export default App
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about_us" element={<About />} />
+          <Route path="/how_it_works" element={<HowItWorks />} />
+          <Route path="/projects" element={<Projects />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;

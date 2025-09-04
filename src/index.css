@@ -87,9 +87,12 @@
   /* custom text Sizes */
   --text-xsm: 12px;
   --text-sm: 14px;
-  --text-base: 24px;
-  --text-headline: 32px;
-  --text-title: 40px;
+  --text-base: 16px;
+  --text-h5: 18px;
+  --text-h4: 20px;
+  --text-h3: 24px;
+  --text-h2: 32px;
+  --text-h1: 40px;
 
   --text-lg: 1.125rem; /* 18px */
   --text-lg--line-height: calc(1.75 / 1.125);

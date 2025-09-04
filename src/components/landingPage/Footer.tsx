@@ -1,7 +1,7 @@
 import Address from './Address'
 import { FaRegCopyright } from "react-icons/fa";
 
-function  Footer() {
+const Footer = () => {
   return (
     <div className='flex flex-col gap-15 '>
       <Address/>

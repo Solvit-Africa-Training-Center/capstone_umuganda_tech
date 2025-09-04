@@ -15,9 +15,8 @@ const NavBar = () => {
   return (
     <div className="font-opensans">
       <nav className="absolute top-0 left-0 w-full z-20 p-6 flex items-center justify-around text-white">
-        {/* Logo */}
         <div className="flex items-center flex-row justify-center">
-          <img src={logo} alt="UmugandaTech Logo" className="h-14 w-14" />
+          <img src={logo} alt="UmugandaTech Logo" className="h-16 w-16" />
           <span className="text-2xl font-bold text-primaryColor-900">UmugandaTech</span>
         </div>
 

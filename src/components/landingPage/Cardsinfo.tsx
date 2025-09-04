@@ -16,13 +16,13 @@ const Cardsinfo: React.FC<Cardprops> = ({ image, Name, Address, description }) =
         alt={Name}
       />
       <div className="">
-      <div className="pl-15 pr-15 flex flex-col gap-5">
+      <div className="pl-15 pr-15  flex flex-col gap-5">
             <div className="text-start">
-                <h1 className="font-semibold text-lg lg:text-[40px]">{Name}</h1>
-                <p className="text-[#464646] font-medium">{Address}</p>
+                <h1 className="font-semibold  lg:text-h3">{Name}</h1>
+                <p className="text-[#464646] lg:text-h5 font-medium">{Address}</p>
             </div>
         
-            <p className=" text-[#464646] text-[25px]">
+            <p className=" text-[#464646]  pl-8 pr-8 text-h5">
                 “{description}”
             </p>
        </div>

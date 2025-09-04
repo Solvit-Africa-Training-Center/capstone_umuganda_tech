@@ -1,6 +1,4 @@
-import React from 'react'
-
-function Address(){
+const Address = () => {
   return (
     <div className='flex  justify-center    '>
         <div className='flex flex-col gap-5 lg:gap-40 w-[83%]  justify-between lg:flex-row lg:justify-between '>
@@ -14,7 +12,7 @@ function Address(){
             </div>
             <div  className='grid grid-cols-1 items-center text-center gap-5 lg:text-start lg:grid-cols-4 font-semibold'>
                 <div className='flex flex-col text-[18px]'>
-                    <h1 className=''>About</h1>
+                    <h1 className='font-bold'>About</h1>
                     <div className=''>
                         <p className=''>Our Mission</p>
                         <p className=''>Our Team</p>

@@ -1,6 +1,7 @@
 import React from "react";
 import Cardsinfo from "./Cardsinfo";
 
+
 function Personalinfo() {
   const Cards = [
     {
@@ -23,6 +24,13 @@ function Personalinfo() {
       Address: "NGO coordinator, Musanze",
       description:
         "The digital certificates are a great way to recognize our volunteers’ hard work. It boosts morale and makes recruitment easier.",
+    },
+     {
+      image: "chantal.png",
+      Name: "David Byiringiro",
+      Address: "Student Volunteer,Ruhango",
+      description:
+        "As a student,the gamification  aspect makes volunteering fun and engaging.I love seeing my progress and earning badges",
     },
   ];
 

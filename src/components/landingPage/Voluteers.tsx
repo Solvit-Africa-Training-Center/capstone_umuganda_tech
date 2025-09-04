@@ -2,7 +2,7 @@ import React from "react";
 import VoluteerCard from "./VoluteerCard";
 import { CiLocationOn } from "react-icons/ci";
 import { IoGameControllerOutline, IoQrCodeOutline } from "react-icons/io5";
-import { FaCertificate } from "react-icons/fa";
+import { Medal } from 'lucide-react';
 
 function Voluteers() {
   const features = [
@@ -10,25 +10,25 @@ function Voluteers() {
       Name: "Easy Discovery",
       description:
         "Find and sign up for community projects near you with an intuitive map and filter system",
-      icon: <CiLocationOn />,
+      icon: <CiLocationOn className="w-[34px] h-[34px]" />,
     },
     {
       Name: "QR Check-In",
       description:
         "Effortlessly check in and out of projects using QR codes for accurate participation tracking",
-      icon: <IoQrCodeOutline />,
+      icon: <IoQrCodeOutline className="w-[34px] h-[34px]" />,
     },
     {
       Name: "Digital Certificate",
       description:
         "Send automated reminders and recognize volunteers with digital certificates",
-      icon: <FaCertificate />,
+      icon: <Medal  className="w-[34px] h-[34px]"/>,
     },
     {
       Name: "Gamification",
       description:
         "Generate reports on volunteer hours, project outcomes, and community impact",
-      icon: <IoGameControllerOutline />,
+      icon: <IoGameControllerOutline className="w-[34px] h-[34px]"/>,
     },
   ];
 

@@ -1,3 +1,12 @@
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import NotFound from './pages/NotFound';
+import LandingPage from './pages/Home';
+import ScrollToAnchor from './components/ScrollToAnchor';
+import NavBar from './components/NavBar';
+import Footer from "./components/landingPage/Footer"
+import SignUpPage from './pages/SignUpPage';
+import OtpVerifyPage from './pages/OtpVerifyPage';
+
 const Layout = () => {
   return (
     <>
@@ -9,15 +18,6 @@ const Layout = () => {
   );
 }
 
-
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
-import NotFound from './pages/NotFound';
-import LandingPage from './pages/Home';
-import ScrollToAnchor from './components/ScrollToAnchor';
-import NavBar from './components/NavBar';
-import Footer from "./components/landingPage/Footer"
-
-
 const App = () => (
   <Router>
     <ScrollToAnchor />
@@ -26,6 +26,8 @@ const App = () => (
         <Route path="/" element={<LandingPage />} />
         {/* other routes */}
       </Route>
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/otp-verification" element={<OtpVerifyPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Router>

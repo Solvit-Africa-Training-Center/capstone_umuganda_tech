@@ -11,6 +11,7 @@ const NavBar = () => {
     { name: "How It Works", to: "/#how_it_works" },
     { name: "Projects", to: "/#projects" },
     { name: "Sign Up", to: "/signup" },
+    { name: "Otp Verification", to: "/otp-verification" },
   ];
 
   return (
@@ -42,7 +43,7 @@ const NavBar = () => {
         {/* Desktop Sign In (separate div) */}
         <div className="hidden md:block">
           <NavLink
-            to="/signin"
+            to="/signup"
             className={({ isActive }) =>
                 isActive
                   ? "text-text-primary font-semibold px-4 py-2 rounded-full bg-white/5"

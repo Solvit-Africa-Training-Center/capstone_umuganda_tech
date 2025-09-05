@@ -6,6 +6,8 @@ import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
 import Footer from "./components/landingPage/Footer"
+import Signupsuccess from './pages/Signupsuccess';
+import LeaderInfo from './pages/LeaderInfo';
 
 
 
@@ -31,6 +33,8 @@ const App = () => {
           <Route path="/how_it_works" element={<HowItWorks />} />
           <Route path="/projects" element={<Projects />} />
         </Route>
+        <Route path="/success" element={<Signupsuccess/>} />
+        <Route path="/leader_info" element={<LeaderInfo/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

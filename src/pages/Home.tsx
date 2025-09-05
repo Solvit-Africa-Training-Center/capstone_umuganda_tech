@@ -6,9 +6,11 @@ import Participate from "../components/landingPage/Participate"
 import Personalinfo from "../components/landingPage/Personalinfo"
 
 
+
+
 const Home = () =>{
   return (
-    <div className="font-opensans">
+    <div className="font-opensans"> 
       <HeroSection />
       <AboutAndHowItWorks />
       <CarouselSteps />
@@ -16,8 +18,9 @@ const Home = () =>{
       <Voluteers/>
       <Personalinfo/>
       <Participate/> 
+      </div>
     </div>
-    </div>
+    
   )
 }
 

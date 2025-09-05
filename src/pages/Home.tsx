@@ -6,6 +6,8 @@ import Participate from "../components/landingPage/Participate"
 import Personalinfo from "../components/landingPage/Personalinfo"
 
 
+
+
 const Home = () =>{
   return (
     <div className="font-opensans">

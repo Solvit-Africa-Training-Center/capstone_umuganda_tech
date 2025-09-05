@@ -7,18 +7,16 @@ const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navLinks = [
     { name: "Home", to: "/" },
-    { name: "About Us", to: "/about_us" },
-    { name: "How It Works", to: "/how_it_works" },
-    { name: "Projects", to: "/projects" },
-    { name: "Sign up success", to: "/success" },
+    { name: "About Us", to: "/#about_us" },
+    { name: "How It Works", to: "/#how_it_works" },
+    { name: "Projects", to: "/#projects" },
   ];
 
   return (
     <div className="font-opensans">
-      <nav className="absolute top-0 left-0 w-full z-20 p-6 flex items-center justify-around text-white">
-        {/* Logo */}
+      <nav className="absolute top-0 left-0 w-full  z-20 p-6 flex items-center justify-around text-white">
         <div className="flex items-center flex-row justify-center">
-          <img src={logo} alt="UmugandaTech Logo" className="h-14 w-14" />
+          <img src={logo} alt="UmugandaTech Logo" className="h-16 w-16" />
           <span className="text-2xl font-bold text-primaryColor-900">UmugandaTech</span>
         </div>
 

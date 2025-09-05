@@ -1,6 +1,4 @@
-import React from 'react'
-
-function Participate () {
+const Participate = () => {
   return (
     <div className='bg-primaryColor-300 flex flex-col items-center justify-center text-center gap-5 p-5'>
         <h1 className='text-[25px]  font-semibold lg:text-h1'>Ready to Make a Difference?</h1> 

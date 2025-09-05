@@ -47,7 +47,7 @@ const CarouselSteps: React.FC = () => {
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({
-        left: direction === "left" ? -560 : 560, // scroll distance ≈ card width
+        left: direction === "left" ? -560 : 560, 
         behavior: "smooth",
       });
     }
@@ -81,16 +81,13 @@ const CarouselSteps: React.FC = () => {
               ) : (
                 step.iconComponent
               )}
-              <h3 className="text-h1 font-semibold mb-2">{step.title}</h3>
-              <p className="text-gray-600 text-base max-w-[240px]">
-                {step.description}
-              </p>
+              <h3 className="text-h3 font-semibold mb-2">{step.title}</h3>
+              <p className="text-gray-600 text-base max-w-[240px]">{step.description}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Navigation Arrows */}
       <button
         onClick={() => scroll("left")}
         className="absolute top-1/2 left-2 md:left-4 transform -translate-y-1/2 p-3 bg-white rounded-full shadow-lg z-10 hover:bg-gray-100"

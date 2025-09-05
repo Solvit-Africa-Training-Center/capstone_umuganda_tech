@@ -3,6 +3,7 @@ import work1 from "../images/icon-work/Vector.png";
 import work2 from "../images/icon-work/Group.png";
 import work3 from "../images/icon-work/grup1.png";
 import work4 from "../images/icon-work/Group2.png";
+import AboutUs from "./AboutUs";
 
 interface Step {
   iconSrc: string;
@@ -41,21 +42,7 @@ const steps: Step[] = [
 const AboutAndHowItWorks: React.FC = () => {
   return (
     <section className="font-opensans bg-gray-50 py-16 px-6 md:px-12">
-      <div className="max-w-3xl mx-auto text-center mb-16">
-        <h2 className="text-h1 text-text-secondary font-semibold mb-4">
-          About Us
-        </h2>
-        <p className="text-neutral-900 leading-relaxed text-start max-w-[1200px] text-h4">
-          At UmugandaTech, we believe in the power of community and the
-          potential of technology to amplify it. Born from the rich tradition
-          of Rwanda collective action, our platform is designed to empower
-          both community leaders and citizens. We provide the digital tools
-          to make mobilization smarter, participation more rewarding, and
-          social impact more measurable.
-        </p>
-      </div>
-
-      {/* How It Works */}
+      <AboutUs/>
       <div className="max-w-5xl mx-auto flex flex-col items-center">
         <h2 className="text-h1 text-text-secondary font-semibold text-center mb-8">
           How It Works

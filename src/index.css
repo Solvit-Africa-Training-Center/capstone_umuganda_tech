@@ -5,6 +5,8 @@
 @theme {
   /* family=opensans */
   --font-opensans: "Open Sans", sans-serif;
+  
+  --scroll-behavior: smooth;
 
   /* responsiveness */
   --breakpoint-sm: 600px;

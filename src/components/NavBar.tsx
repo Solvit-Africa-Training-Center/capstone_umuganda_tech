@@ -10,8 +10,6 @@ const NavBar = () => {
     { name: "About Us", to: "/#about_us" },
     { name: "How It Works", to: "/#how_it_works" },
     { name: "Projects", to: "/#projects" },
-    { name: "Sign Up", to: "/signup" },
-    { name: "Otp Verification", to: "/otp-verification" },
   ];
 
   return (

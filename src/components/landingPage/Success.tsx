@@ -20,7 +20,6 @@ const Success = () =>{
           Congratulations! You have been successfully authenticated
         </p>
       </div>
-
       <Link to='/leader_info'>
       <button className="w-[80%] py-3 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition">
         Continue

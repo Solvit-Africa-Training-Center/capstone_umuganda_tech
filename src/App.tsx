@@ -8,6 +8,7 @@ import SignUpPage from './pages/SignUpPage';
 import OtpVerifyPage from './pages/OtpVerifyPage';
 import LeaderInfo from './pages/LeaderInfo';
 import Signupsuccess from './pages/Signupsuccess';
+import Volunteerinfo from './components/landingPage/Volunteerinfo';
 
 
 const Layout = () => {
@@ -32,6 +33,7 @@ const App = () => (
       <Route path="/otp-verification" element={<OtpVerifyPage />} />
       <Route path="/signup-success" element={<Signupsuccess />} />
       <Route path="/leader_post" element={<LeaderInfo />} />
+      <Route path="/Volunteer-signup" element={<Volunteerinfo />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Router>

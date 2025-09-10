@@ -63,12 +63,12 @@ const Information: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-[#FAF7F2] p-8 rounded-lg">
+    <div className="w-full mx-auto bg-[#FAF7F2] p-8 rounded-lg flex flex-col justify-center items-center">
       <h1 className="text-2xl font-bold text-center mb-6">
         Official Information
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 flex flex-col ">
         {/* First Name */}
         <Inputinfo
           name="firstName"

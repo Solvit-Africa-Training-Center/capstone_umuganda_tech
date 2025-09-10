@@ -1,4 +1,5 @@
 import icon from "./images/Vector (4).png"
+import { Link } from "react-router-dom";
 import Button from "./Button"
 
 const OtpVerification = () => {
@@ -23,7 +24,7 @@ const OtpVerification = () => {
   ))}
 </div>
 
-            <Button className="mt-4">Confirm</Button>
+            <Link to="/signup-success"><Button className="mt-4">Confirm</Button></Link>
         </div>
         
     </section>

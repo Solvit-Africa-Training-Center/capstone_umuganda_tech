@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, } from "react";
 import Inputinfo from "./Inputinfo";
-import { MdOutlineFileUpload } from "react-icons/md";
+
 
 const Volunteerinfo: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,6 @@ const Volunteerinfo: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -25,20 +24,6 @@ const Volunteerinfo: React.FC = () => {
 
     // clear error when user types/selects
     setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({
-        ...prev,
-        proof: e.target.files![0].name,
-      }));
-      setErrors((prev) => ({ ...prev, proof: "" }));
-    }
-  };
-
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,13 +44,12 @@ const Volunteerinfo: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-[#FAF7F2] p-8 rounded-lg">
+    <div className="w-full mx-auto bg-[#FAF7F2] p-8 rounded-lg  flex flex-col justify-center items-center">
       <h1 className="text-2xl font-bold text-center mb-6">
         Official Information
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* First Name */}
+      <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
         <Inputinfo
           name="firstName"
           label="First Name"
@@ -74,7 +58,7 @@ const Volunteerinfo: React.FC = () => {
           error={errors.firstName}
         />
 
-        {/* Last Name */}
+    
         <Inputinfo
           name="lastName"
           label="Last Name"
@@ -83,7 +67,7 @@ const Volunteerinfo: React.FC = () => {
           error={errors.lastName}
         />
 
-        {/* Email */}
+      
         <Inputinfo
           name="email"
           type="email"
@@ -93,29 +77,51 @@ const Volunteerinfo: React.FC = () => {
           error={errors.email}
         />
 
-         <Inputinfo
-          name="skills"
-          type="skills"
-          label="Choose  your  skill"
-          value={formData.skills}
-          onChange={handleChange}
-          error={errors.skills}
-        />
+        
 
-     
+         <div className="relative">
+          <select
+            id="skills"
+            name="skills"
+            value={formData.skills}
+            onChange={handleChange}
+            className={`peer w-full px-4 pt-5 pb-2 border rounded-lg bg-white text-gray-700 
+              focus:outline-none focus:ring-2 appearance-none ${
+                errors.role
+                  ? "border-red-500 ring-red-200"
+                  : "border-gray-300 focus:border-orange-500 focus:ring-orange-300"
+              }`}
+          >
+            <option value="" disabled hidden>Choose your role</option>
+            <option value="Umuganda Leader">Heavy lifting</option>
+            <option value="Cell Executive Secretary">Digging</option>
+            <option value="Sector Administrator">planting</option>
+            <option value="Local Council Leader">wedding</option>
+            <option value="Umuganda Leader">Carpentry</option>
+            <option value="Cell Executive Secretary">Masonry/Bricklaying</option>
+            <option value="Sector Administrator">painting</option>
+          </select>
+          <label
+            htmlFor="skills"
+            className={`absolute left-3 px-1 bg-[#FAF7F2] transition-all
+              ${formData.skills
+                ? "top-[-0.5rem] text-xs text-orange-600"
+                : "top-4 text-base text-gray-400"}
+              peer-focus:top-[-0.5rem] peer-focus:text-xs peer-focus:text-orange-600`}
+          >
+            Choose your role
+          </label>
+          {errors.skills && (
+            <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+          )}
+        </div>
 
-        {/* Submit */}
         <button
           type="submit"
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
         >
-          Submit
+          Complete Registration
         </button>
-
-        <p className="text-sm text-gray-500 text-center mt-2">
-          Your account will be activated after a quick verification process. You
-          will receive an SMS confirmation.
-        </p>
       </form>
     </div>
   );

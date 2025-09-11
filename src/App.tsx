@@ -7,7 +7,8 @@ import Footer from "./components/landingPage/Footer"
 import SignUpPage from './pages/SignUpPage';
 import OtpVerifyPage from './pages/OtpVerifyPage';
 import LeaderInfo from './pages/LeaderInfo';
-import Signupsuccess from './pages/Signupsuccess';
+import LeaderDashboard from './pages/Dashboard';
+import SignInPage from './pages/SignInPage';
 
 
 const Layout = () => {
@@ -29,9 +30,10 @@ const App = () => (
         <Route path="/" element={<LandingPage />} />
       </Route>
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/signin" element={<SignInPage />} />
       <Route path="/otp-verification" element={<OtpVerifyPage />} />
-      <Route path="/signup-success" element={<Signupsuccess />} />
       <Route path="/leader_post" element={<LeaderInfo />} />
+      <Route path="/leader_dashboard" element={<LeaderDashboard />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Router>

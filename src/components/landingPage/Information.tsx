@@ -25,7 +25,6 @@ const Information: React.FC = () => {
       [name]: value,
     }));
 
-    // clear error when user types/selects
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -58,7 +57,7 @@ const Information: React.FC = () => {
 
     if (Object.keys(newErrors).length === 0) {
       console.log("Form submitted:", formData);
-      alert("Form submitted successfully ✅");
+      alert("Form submitted successfully ");
     }
   };
 
@@ -69,7 +68,6 @@ const Information: React.FC = () => {
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* First Name */}
         <Inputinfo
           name="firstName"
           label="First Name"
@@ -78,7 +76,6 @@ const Information: React.FC = () => {
           error={errors.firstName}
         />
 
-        {/* Last Name */}
         <Inputinfo
           name="lastName"
           label="Last Name"
@@ -87,7 +84,6 @@ const Information: React.FC = () => {
           error={errors.lastName}
         />
 
-        {/* Email */}
         <Inputinfo
           name="email"
           type="email"
@@ -97,7 +93,6 @@ const Information: React.FC = () => {
           error={errors.email}
         />
 
-        {/* Sector Dropdown */}
         <div className="relative">
           <select
             id="sector"
@@ -130,7 +125,6 @@ const Information: React.FC = () => {
           )}
         </div>
 
-        {/* Role Dropdown */}
         <div className="relative">
           <select
             id="role"
@@ -165,7 +159,6 @@ const Information: React.FC = () => {
           )}
         </div>
 
-        {/* Upload Proof of Authority */}
         <div
           onClick={handleFileClick}
           className={`flex items-center justify-between w-full px-4 py-4 border rounded-lg bg-white cursor-pointer hover:bg-gray-50 ${
@@ -191,7 +184,6 @@ const Information: React.FC = () => {
           <p className="text-red-500 text-sm mt-1">{errors.proof}</p>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"

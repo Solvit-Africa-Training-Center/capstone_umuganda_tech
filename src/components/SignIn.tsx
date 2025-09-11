@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 
 const AuthFlow: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'signup' | 'signin'>('signup');
+  const [currentPage, setCurrentPage] = useState<'signup' | 'signin' | 'otp-verification'>('signup');
   const [phoneNumber, setPhoneNumber] = useState('');
-  // const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('');
   // const [confirmPassword, setConfirmPassword] = useState('');
 
   const FloatingLabelInput = ({
@@ -53,7 +53,7 @@ const AuthFlow: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-800">UmagamaTech</h2>
           </div>
           <Link
-            to="/"
+            to="/signup"
             className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center"
           >
             <span className="text-3xl text-gray-600 ">→</span>
@@ -68,7 +68,7 @@ const AuthFlow: React.FC = () => {
             Building our community, together
           </p>
           <h1 className="text-2xl font-bold text-gray-800 mt-10 mb-4">
-        Sign Up 
+        Sign In 
       </h1>
 
           <div className="flex bg-white border border-gray-400 rounded-2xl p-1 mb-8">
@@ -108,12 +108,12 @@ const AuthFlow: React.FC = () => {
         onChange={setPhoneNumber}
       />
 
-      {/* <FloatingLabelInput
+      <FloatingLabelInput
         label="Enter your password"
         type="password"
         value={password}
         onChange={setPassword}
-      /> */}
+      />
 
       {/* {!isSignIn && (
         <FloatingLabelInput
@@ -125,8 +125,8 @@ const AuthFlow: React.FC = () => {
       )} */}
 
       <Link
-        to="/signin"
-        className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5"    
+        to="/otp-verification"
+        className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5"
       >
         {isSignIn ? 'Continue' : 'Continue'}
       </Link>
@@ -139,7 +139,7 @@ const AuthFlow: React.FC = () => {
 
   return (
     <div className="relative bg-[#F9F6F2] pb-10">
-      {currentPage === 'signup' ? <AuthFormPage isSignIn={true} /> : <AuthFormPage isSignIn={false} />}
+      {currentPage === 'signin' ? <AuthFormPage isSignIn={true} /> : <AuthFormPage isSignIn={false} />}
     </div>
   );
 };

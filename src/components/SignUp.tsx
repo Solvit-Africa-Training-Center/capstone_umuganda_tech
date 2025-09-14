@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 const AuthFlow: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<'signup' | 'signin'>('signup');
   const [phoneNumber, setPhoneNumber] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const FloatingLabelInput = ({
     label,
@@ -35,7 +35,7 @@ const AuthFlow: React.FC = () => {
         />
         <label className={`absolute left-4 transition-all duration-200 pointer-events-none ${
           isFocused || value
-            ? 'top-0 -translate-y-1/2 text-sm text-green-500 bg-[#F9F6F2] px-2'
+            ? 'top-0 -translate-y-1/2 text-sm text-primaryColor-900 bg-[#F9F6F2] px-2'
             : 'top-1/2 -translate-y-1/2 text-gray-500'
         }`}>
           {label}
@@ -108,21 +108,21 @@ const AuthFlow: React.FC = () => {
         onChange={setPhoneNumber}
       />
 
-      {/* <FloatingLabelInput
+      <FloatingLabelInput
         label="Enter your password"
         type="password"
         value={password}
         onChange={setPassword}
-      /> */}
+      /> 
 
-      {/* {!isSignIn && (
+     {!isSignIn && (
         <FloatingLabelInput
           label="Confirm your password"
           type="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
         />
-      )} */}
+      )}
 
       <Link
         to="/signin"

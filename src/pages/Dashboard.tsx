@@ -1,10 +1,9 @@
 import React from 'react';
 import Sidebar from '../components/LeaderDashboard/Sidebar';
 import HeaderCards from '../components/LeaderDashboard/HeaderCards';
-import RecentActivity from '../components/LeaderDashboard/RecentActivity';
 import UpcomingCalendar from '../components/LeaderDashboard/UpcomingCalendar';
 import NavBar from '../components/LeaderDashboard/TopNav';
-import type { StatCard, Activity } from '../types/LeaderDashboard';
+import type { StatCard } from '../types/LeaderDashboard';
 
 const stats: StatCard[] = [
   { label: 'Total Active Projects', value: 12 },
@@ -13,13 +12,13 @@ const stats: StatCard[] = [
   { label: 'Budget Health', value: 'Good', status: 'good' },
 ];
 
-const activities: Activity[] = [
-  { description: 'New team assigned and project created “UmugandaApp”', timestamp: '2 hours ago' },
-  { description: 'User “Evelyn Mukasa” assigned to Order Management', timestamp: '5 hours ago' },
-  { description: 'Project “Smart Home Project” is now behind schedule', timestamp: '1 day ago' },
-  { description: 'User “Jean Habimana” completed the “Design” task', timestamp: '2 days ago' },
-  { description: 'Report “Q2 Project Analysis” generated and downloaded', timestamp: '3 days ago' },
-];
+// const activities: Activity[] = [
+//   { description: 'New team assigned and project created “UmugandaApp”', timestamp: '2 hours ago' },
+//   { description: 'User “Evelyn Mukasa” assigned to Order Management', timestamp: '5 hours ago' },
+//   { description: 'Project “Smart Home Project” is now behind schedule', timestamp: '1 day ago' },
+//   { description: 'User “Jean Habimana” completed the “Design” task', timestamp: '2 days ago' },
+//   { description: 'Report “Q2 Project Analysis” generated and downloaded', timestamp: '3 days ago' },
+// ];
 
 const deadlines = [
   new Date(),
@@ -37,7 +36,6 @@ const Dashboard: React.FC = () => (
       </h1>
       <HeaderCards stats={stats} />
       <div className="mt-6 flex md:flex-row flex-col sm:flex-col  justify-between">
-        <RecentActivity activities={activities} />
         <UpcomingCalendar deadlines={deadlines} />
       </div>
     </main>

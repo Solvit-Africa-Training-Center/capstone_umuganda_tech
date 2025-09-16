@@ -1,7 +1,8 @@
-// src/components/volunteerComponents/VolunteerCommunityHub/VolunteerCommunityHub.tsx
-
 import React, { useState } from "react";
 import type { CommunityPost } from "../../types/Volunteer";
+import  alert  from "../../images/volunteer/alert.png";
+import CardGrid from "./CardGrid";
+
 
 const initialPosts: CommunityPost[] = [
   {
@@ -28,14 +29,6 @@ const initialPosts: CommunityPost[] = [
   // etc.
 ];
 
-const subCards = [
-  { id: "a", title: "General Discussion", date: "1 day ago" },
-  { id: "b", title: "Project Ideas", date: "2 days ago" },
-  { id: "c", title: "Feedback & Suggestions", date: "3 days ago" },
-  { id: "d", title: "Announcements", date: "4 days ago" },
-  { id: "e", title: "Volunteer Spotlights", date: "1 week ago" }
-];
-
 interface Props {}
 
 const VolunteerCommunityHub: React.FC<Props> = () => {
@@ -54,49 +47,27 @@ const VolunteerCommunityHub: React.FC<Props> = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Main Cards */}
+    <div className="p-6  bg-white flex flex-col space-y-8 w-full">
+      <div className="mb-6 flex flex-row bg-white items-end space-x-3">
+        <div className="">
+        <img className="text-right" src={alert} alt="Alert" />
+      </div>
+      <div className="w-20"></div>
+      </div>
       <div className="space-y-6">
 
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Community Hub</h2>
-          <p className="text-gray-600">Welcome to the Ungageable Tech Community Hub</p>
+        <div className="bg-white  p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Welcome to the UmugandaTech Community Hub.</h2>
+          <p className="text-gray-600">
+            Our projects are driven by you! This platform is where volunteers can propose and discuss ideas for new community initiatives.  Have an idea? Share it here!
+          </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
-          {posts.map(post => (
-            <div key={post.id} className="border-b last:border-b-0 pb-4 mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <h3 className="font-medium text-gray-800">{post.title}</h3>
-                <span className="text-sm text-gray-500">{post.date}</span>
-              </div>
-              <div className="text-sm text-gray-600 mb-1">By {post.author}</div>
-              <div className="text-gray-700">{post.content}</div>
-            </div>
-          ))}
-          <div className="flex justify-end">
-            <button
-              onClick={handleNewPost}
-              className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            >
-              + New Post
-            </button>
-          </div>
-        </div>
+       
+    <CardGrid />
 
       </div>
 
-      {/* Sub-cards scrollable horizontally */}
-      <div className="mt-8 overflow-x-auto">
-        <div className="flex space-x-4 pb-2">
-          {subCards.map(sc => (
-            <div key={sc.id} className="min-w-[200px] bg-white rounded-lg shadow border border-gray-200 p-4">
-              <div className="text-sm text-gray-500">{sc.date}</div>
-              <div className="font-medium text-gray-800">{sc.title}</div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { EventItem } from "../../types/Volunteer";
-import { User, Users, BarChart3, CheckCircle } from "lucide-react";
+import {  Users, BarChart3, CheckCircle } from "lucide-react";
 
 interface Props {
   volunteerName: string;

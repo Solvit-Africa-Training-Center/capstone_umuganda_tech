@@ -31,7 +31,17 @@ export interface ProjectCard {
   status: "Upcoming" | "Completed" | "Ongoing" | string;
 }
 
-// src/types/Volunteer.ts
+export interface CardData {
+  id: number;
+  avatarUrl: any;
+  author: string;
+  timeAgo: string;
+  content: string;
+  commentsCount: number;
+  likesCount: number;
+  votesCount: number;
+}
+
 
 export interface Volunteer {
   id: string;
@@ -39,7 +49,7 @@ export interface Volunteer {
   lastName: string;
   name: string;
   email: string;
-  phone?: string;
+  position: string;
   address?: string;
   organization?: string;
   sector?: string;

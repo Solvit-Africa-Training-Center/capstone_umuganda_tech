@@ -1,25 +1,26 @@
-// src/components/volunteerComponents/VolunteerCheckIn/VolunteerCheckInPage.tsx
-
 import React from "react";
+import  QrCode  from "../../images/volunteer/QR code.png";
 
 const VolunteerCheckInPage: React.FC = () => {
   const handleCheckOut = () => {
     console.log("Checked out");
-    // TODO: logic to end session
+    // logic to end session
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow text-center">
-      <h2 className="text-2xl font-semibold mb-4">Volunteer Check In</h2>
-      <p className="mb-6">You’ve made a difference today.</p>
+    <div className="bg-primaryColor-200 w-full min-h-screen flex items-center justify-center pt-14">
+      <div className="flex flex-col items-center justify-center bg-white w-full  rounded text-center border-t border-[#B1AEAE]">
+        <h2 className="text-h2 font-semibold mb-2 text-center">You’ve made a difference today.</h2>
+      <p className="mb-1 text-center">
+        Check in to record your impact. Scan the QR code to log your attendance.
+      </p>
       <div className="mb-6 flex justify-center">
-        <div className="w-64 h-64 bg-gray-200 flex items-center justify-center rounded-lg">
-          {/* Replace with real QR code component if needed */}
-          <span className="text-gray-500">QR CODE</span>
+        <div className="w-60 h-60 bg-white flex items-center justify-center rounded-lg">
+          <img src={QrCode} alt="QR Code" />
         </div>
       </div>
       <div className="text-left space-y-2 max-w-lg mx-auto">
-        <p className="font-semibold">How to check in:</p>
+        <p className=" text-h4 font-semibold">How to check in:</p>
         <ol className="list-decimal list-inside ml-4 space-y-1">
           <li>Locate the project’s QR code at the site entrance.</li>
           <li>Align the code within the frame on your screen.</li>
@@ -34,6 +35,7 @@ const VolunteerCheckInPage: React.FC = () => {
         >
           Check Out
         </button>
+      </div>
       </div>
     </div>
   );

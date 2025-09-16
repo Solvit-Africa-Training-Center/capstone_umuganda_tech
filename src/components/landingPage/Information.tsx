@@ -74,7 +74,7 @@ const Information: React.FC = () => {
         "https://umuganda-tech-backend.onrender.com/api/users/auth/complete-registration/",
         {
           method: "POST",
-          body: payload, // ✅ Send as multipart form-data
+          body: payload, 
         }
       );
 

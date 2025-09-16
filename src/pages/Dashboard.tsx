@@ -12,14 +12,6 @@ const stats: StatCard[] = [
   { label: 'Budget Health', value: 'Good', status: 'good' },
 ];
 
-// const activities: Activity[] = [
-//   { description: 'New team assigned and project created “UmugandaApp”', timestamp: '2 hours ago' },
-//   { description: 'User “Evelyn Mukasa” assigned to Order Management', timestamp: '5 hours ago' },
-//   { description: 'Project “Smart Home Project” is now behind schedule', timestamp: '1 day ago' },
-//   { description: 'User “Jean Habimana” completed the “Design” task', timestamp: '2 days ago' },
-//   { description: 'Report “Q2 Project Analysis” generated and downloaded', timestamp: '3 days ago' },
-// ];
-
 const deadlines = [
   new Date(),
   new Date(new Date().setDate(new Date().getDate() + 3)),

@@ -1,75 +1,100 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Inputinfo from "./Inputinfo";
-import { MdOutlineFileUpload } from "react-icons/md";
+// import { AuthResponse } from "../../types"; 
+import Registerheader from "./Registerheader";
+import type { AuthResponse } from "../../types";
 
-const Information: React.FC = () => {
-  const [formData, setFormData] = useState({
+// Form state type (only fields needed for registration API)
+interface RegistrationFormData {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  password: string;
+}
+
+const Volunteerinfo: React.FC = () => {
+  const [formData, setFormData] = useState<RegistrationFormData>({
     firstName: "",
     lastName: "",
-    email: "",
-    proof: "",
-    sector: "",
-    role: "",
+    phoneNumber: "",
+    password: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof RegistrationFormData, string>>>({});
+  const [loading, setLoading] = useState(false);
+  const [apiMessage, setApiMessage] = useState<string | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // clear error when user types/selects
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); // clear error on change
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({
-        ...prev,
-        proof: e.target.files![0].name,
-      }));
-      setErrors((prev) => ({ ...prev, proof: "" }));
-    }
-  };
-
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: Record<string, string> = {};
+  // Validate before submitting
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof RegistrationFormData, string>> = {};
 
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.sector) newErrors.sector = "Please select a sector";
-    if (!formData.role) newErrors.role = "Please select a role";
-    if (!formData.proof) newErrors.proof = "Proof of authority is required";
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
+    if (!formData.password.trim()) newErrors.password = "Password is required";
 
     setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      alert("Form submitted successfully ✅");
+  // Submit form -> call backend
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setApiMessage(null);
+
+    try {
+      const response = await fetch(
+        "https://umuganda-tech-backend.onrender.com/api/users/auth/complete-registration/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone_number: formData.phoneNumber,
+            password: formData.password,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }),
+        }
+      );
+
+      const data: AuthResponse = await response.json();
+
+      if (!response.ok) {
+        setApiMessage(data.message || "Registration failed");
+        return;
+      }
+
+      setApiMessage(data.message || "Registration completed successfully ✅");
+
+      // Store tokens and user
+      if (data.access) localStorage.setItem("access", data.access);
+      if (data.refresh) localStorage.setItem("refresh", data.refresh);
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+
+    } catch (error: any) {
+      setApiMessage(error.message || "Something went wrong ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-[#FAF7F2] p-8 rounded-lg">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        Official Information
-      </h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+         <Registerheader />
+    <div className="w-full  bg-[#FAF7F2] p-8 rounded-lg flex flex-col justify-center items-center">
+      <h1 className="text-2xl font-bold text-center mb-6">Complete Registration</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* First Name */}
+      <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
         <Inputinfo
           name="firstName"
           label="First Name"
@@ -78,7 +103,6 @@ const Information: React.FC = () => {
           error={errors.firstName}
         />
 
-        {/* Last Name */}
         <Inputinfo
           name="lastName"
           label="Last Name"
@@ -87,125 +111,44 @@ const Information: React.FC = () => {
           error={errors.lastName}
         />
 
-        {/* Email */}
         <Inputinfo
-          name="email"
-          type="email"
-          label="Enter your email address"
-          value={formData.email}
+          name="phoneNumber"
+          type="text"
+          label="Phone Number"
+          value={formData.phoneNumber}
           onChange={handleChange}
-          error={errors.email}
+          error={errors.phoneNumber}
         />
 
-        {/* Sector Dropdown */}
-        <div className="relative">
-          <select
-            id="sector"
-            name="sector"
-            value={formData.sector}
-            onChange={handleChange}
-            className={`peer w-full px-4 pt-5 pb-2 border rounded-lg bg-white text-gray-700 
-              focus:outline-none focus:ring-2 appearance-none ${
-                errors.sector
-                  ? "border-red-500 ring-red-200"
-                  : "border-gray-300 focus:border-orange-500 focus:ring-orange-300"
-              }`}
-          >
-            <option value="" disabled hidden>Select Sector</option>
-            <option value="Niboye">Niboye</option>
-            <option value="Other">Other</option>
-          </select>
-          <label
-            htmlFor="sector"
-            className={`absolute left-3 px-1 bg-[#FAF7F2] transition-all
-              ${formData.sector
-                ? "top-[-0.5rem] text-xs text-orange-600"
-                : "top-4 text-base text-gray-400"}
-              peer-focus:top-[-0.5rem] peer-focus:text-xs peer-focus:text-orange-600`}
-          >
-            Select Sector
-          </label>
-          {errors.sector && (
-            <p className="text-red-500 text-sm mt-1">{errors.sector}</p>
-          )}
-        </div>
+        <Inputinfo
+          name="password"
+          type="password"
+          label="Password"
+          value={formData.password}
+          onChange={handleChange}
+          error={errors.password}
+        />
 
-        {/* Role Dropdown */}
-        <div className="relative">
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className={`peer w-full px-4 pt-5 pb-2 border rounded-lg bg-white text-gray-700 
-              focus:outline-none focus:ring-2 appearance-none ${
-                errors.role
-                  ? "border-red-500 ring-red-200"
-                  : "border-gray-300 focus:border-orange-500 focus:ring-orange-300"
-              }`}
-          >
-            <option value="" disabled hidden>Choose your role</option>
-            <option value="Umuganda Leader">Umuganda Leader</option>
-            <option value="Cell Executive Secretary">Cell Executive Secretary</option>
-            <option value="Sector Administrator">Sector Administrator</option>
-            <option value="Local Council Leader">Local Council Leader</option>
-          </select>
-          <label
-            htmlFor="role"
-            className={`absolute left-3 px-1 bg-[#FAF7F2] transition-all
-              ${formData.role
-                ? "top-[-0.5rem] text-xs text-orange-600"
-                : "top-4 text-base text-gray-400"}
-              peer-focus:top-[-0.5rem] peer-focus:text-xs peer-focus:text-orange-600`}
-          >
-            Choose your role
-          </label>
-          {errors.role && (
-            <p className="text-red-500 text-sm mt-1">{errors.role}</p>
-          )}
-        </div>
-
-        {/* Upload Proof of Authority */}
-        <div
-          onClick={handleFileClick}
-          className={`flex items-center justify-between w-full px-4 py-4 border rounded-lg bg-white cursor-pointer hover:bg-gray-50 ${
-            errors.proof
-              ? "border-red-500"
-              : "border-gray-300 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-300"
-          }`}
-        >
-          <span className={formData.proof ? "text-gray-700" : "text-gray-500"}>
-            {formData.proof || "Proof of Authority (Upload)"}
-          </span>
-          <MdOutlineFileUpload size={22} />
-          <input
-            type="file"
-            ref={fileInputRef}
-            name="proof"
-            accept=".pdf,.doc,.docx,.jpg,.png"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </div>
-        {errors.proof && (
-          <p className="text-red-500 text-sm mt-1">{errors.proof}</p>
-        )}
-
-        {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
+          disabled={loading}
+          className={`w-full py-3 font-semibold rounded-lg transition ${
+            loading
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-green-500 text-white hover:bg-green-600"
+          }`}
         >
-          Submit
+          {loading ? "Processing..." : "Complete Registration"}
         </button>
-
-        <p className="text-sm text-gray-500 text-center mt-2">
-          Your account will be activated after a quick verification process. You
-          will receive an SMS confirmation.
-        </p>
       </form>
+
+      {apiMessage && (
+        <p className="mt-4 text-center text-sm text-gray-700">{apiMessage}</p>
+      )}
     </div>
+    </div>
+     
   );
 };
 
-export default Information;
+export default Volunteerinfo;

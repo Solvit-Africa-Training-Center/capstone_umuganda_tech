@@ -7,12 +7,13 @@ const Information: React.FC = () => {
     firstName: "",
     lastName: "",
     email: "",
-    proof: "",
     sector: "",
     role: "",
   });
+  const [file, setFile] = useState<File | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -25,15 +26,13 @@ const Information: React.FC = () => {
       [name]: value,
     }));
 
+    // clear error
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({
-        ...prev,
-        proof: e.target.files![0].name,
-      }));
+      setFile(e.target.files[0]);
       setErrors((prev) => ({ ...prev, proof: "" }));
     }
   };
@@ -42,7 +41,7 @@ const Information: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -51,23 +50,64 @@ const Information: React.FC = () => {
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.sector) newErrors.sector = "Please select a sector";
     if (!formData.role) newErrors.role = "Please select a role";
-    if (!formData.proof) newErrors.proof = "Proof of authority is required";
+    if (!file) newErrors.proof = "Proof of authority is required";
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      alert("Form submitted successfully ");
+    if (Object.keys(newErrors).length > 0) return;
+
+    try {
+      setLoading(true);
+
+      // Prepare multipart form data
+      const payload = new FormData();
+      payload.append("firstName", formData.firstName);
+      payload.append("lastName", formData.lastName);
+      payload.append("email", formData.email);
+      payload.append("sector", formData.sector);
+      payload.append("role", formData.role);
+      if (file) {
+        payload.append("proof", file);
+      }
+
+      const response = await fetch(
+        "https://umuganda-tech-backend.onrender.com/api/users/auth/complete-registration/",
+        {
+          method: "POST",
+          body: payload, 
+        }
+      );
+
+      if (response.ok) {
+        alert("🎉 Registration completed successfully. Await SMS confirmation.");
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          sector: "",
+          role: "",
+        });
+        setFile(null);
+      } else {
+        const err = await response.json();
+        alert(`❌ Registration failed: ${err.message || "Try again later."}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("⚠️ Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-[#FAF7F2] p-8 rounded-lg">
+    <div className="w-full mx-auto bg-[#FAF7F2] p-8 rounded-lg flex flex-col justify-center items-center">
       <h1 className="text-2xl font-bold text-center mb-6">
         Official Information
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 flex flex-col w-full max-w-lg">
+        {/* First Name */}
         <Inputinfo
           name="firstName"
           label="First Name"
@@ -106,16 +146,20 @@ const Information: React.FC = () => {
                   : "border-gray-300 focus:border-orange-500 focus:ring-orange-300"
               }`}
           >
-            <option value="" disabled hidden>Select Sector</option>
+            <option value="" disabled hidden>
+              Select Sector
+            </option>
             <option value="Niboye">Niboye</option>
             <option value="Other">Other</option>
           </select>
           <label
             htmlFor="sector"
             className={`absolute left-3 px-1 bg-[#FAF7F2] transition-all
-              ${formData.sector
-                ? "top-[-0.5rem] text-xs text-orange-600"
-                : "top-4 text-base text-gray-400"}
+              ${
+                formData.sector
+                  ? "top-[-0.5rem] text-xs text-orange-600"
+                  : "top-4 text-base text-gray-400"
+              }
               peer-focus:top-[-0.5rem] peer-focus:text-xs peer-focus:text-orange-600`}
           >
             Select Sector
@@ -138,7 +182,9 @@ const Information: React.FC = () => {
                   : "border-gray-300 focus:border-orange-500 focus:ring-orange-300"
               }`}
           >
-            <option value="" disabled hidden>Choose your role</option>
+            <option value="" disabled hidden>
+              Choose your role
+            </option>
             <option value="Umuganda Leader">Umuganda Leader</option>
             <option value="Cell Executive Secretary">Cell Executive Secretary</option>
             <option value="Sector Administrator">Sector Administrator</option>
@@ -147,9 +193,11 @@ const Information: React.FC = () => {
           <label
             htmlFor="role"
             className={`absolute left-3 px-1 bg-[#FAF7F2] transition-all
-              ${formData.role
-                ? "top-[-0.5rem] text-xs text-orange-600"
-                : "top-4 text-base text-gray-400"}
+              ${
+                formData.role
+                  ? "top-[-0.5rem] text-xs text-orange-600"
+                  : "top-4 text-base text-gray-400"
+              }
               peer-focus:top-[-0.5rem] peer-focus:text-xs peer-focus:text-orange-600`}
           >
             Choose your role
@@ -167,8 +215,8 @@ const Information: React.FC = () => {
               : "border-gray-300 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-300"
           }`}
         >
-          <span className={formData.proof ? "text-gray-700" : "text-gray-500"}>
-            {formData.proof || "Proof of Authority (Upload)"}
+          <span className={file ? "text-gray-700" : "text-gray-500"}>
+            {file ? file.name : "Proof of Authority (Upload)"}
           </span>
           <MdOutlineFileUpload size={22} />
           <input
@@ -186,9 +234,14 @@ const Information: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
+          disabled={loading}
+          className={`w-full py-3 text-white font-semibold rounded-lg transition ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
         >
-          Submit
+          {loading ? "Submitting..." : "Submit"}
         </button>
 
         <p className="text-sm text-gray-500 text-center mt-2">

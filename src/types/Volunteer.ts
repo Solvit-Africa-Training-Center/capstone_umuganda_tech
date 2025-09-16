@@ -49,7 +49,8 @@ export interface Volunteer {
   lastName: string;
   name: string;
   email: string;
-  position: string;
+  phone?: string;
+  position?: string;
   address?: string;
   organization?: string;
   sector?: string;
@@ -78,3 +79,4 @@ export interface CommunityPost {
   content: string;
   date: string;
 }
+

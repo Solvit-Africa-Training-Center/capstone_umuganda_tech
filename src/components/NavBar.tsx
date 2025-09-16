@@ -41,7 +41,7 @@ const NavBar = () => {
         {/* Desktop Sign In (separate div) */}
         <div className="hidden md:block">
           <NavLink
-            to="/signup"
+            to="/signin"
             className={({ isActive }) =>
                 isActive
                   ? "text-text-primary font-semibold px-4 py-2 rounded-full bg-white/5"

@@ -116,7 +116,6 @@ const Information: React.FC = () => {
           error={errors.firstName}
         />
 
-        {/* Last Name */}
         <Inputinfo
           name="lastName"
           label="Last Name"
@@ -125,7 +124,6 @@ const Information: React.FC = () => {
           error={errors.lastName}
         />
 
-        {/* Email */}
         <Inputinfo
           name="email"
           type="email"
@@ -135,7 +133,6 @@ const Information: React.FC = () => {
           error={errors.email}
         />
 
-        {/* Sector Dropdown */}
         <div className="relative">
           <select
             id="sector"
@@ -172,7 +169,6 @@ const Information: React.FC = () => {
           )}
         </div>
 
-        {/* Role Dropdown */}
         <div className="relative">
           <select
             id="role"
@@ -211,7 +207,6 @@ const Information: React.FC = () => {
           )}
         </div>
 
-        {/* Upload Proof of Authority */}
         <div
           onClick={handleFileClick}
           className={`flex items-center justify-between w-full px-4 py-4 border rounded-lg bg-white cursor-pointer hover:bg-gray-50 ${
@@ -237,7 +232,6 @@ const Information: React.FC = () => {
           <p className="text-red-500 text-sm mt-1">{errors.proof}</p>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}

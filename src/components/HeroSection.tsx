@@ -1,12 +1,13 @@
 import bg from "../images/Heading-card .png"; 
 import { motion } from "framer-motion";
 import Button from "./Button";
+import { Link } from "react-router-dom";
 
 
 const HeroSection: React.FC = () => {
   return (
     <section
-      className="relative bg-cover bg-center h-screen "
+      className="relative bg-cover bg-center h-screen"
       style={{ backgroundImage: `url(${bg})` }} 
     >
       <motion.div
@@ -23,7 +24,9 @@ const HeroSection: React.FC = () => {
            streamlining organization, enhancing participation, 
           and celebrating  collective effort for national development.
         </p>
-        <Button onClick={() => alert('Button clicked!')}>Get Started</Button>
+        <Link to="/signup">
+          <Button >Get Started</Button>
+        </Link>
       </motion.div>
     </section>
   );

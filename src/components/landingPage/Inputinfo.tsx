@@ -25,7 +25,7 @@ const Inputinfo: React.FC<InputinfoProps> = ({
         type={type}
         value={value}
         onChange={onChange}
-        placeholder=" " // 👈 required for floating effect
+        placeholder=" " 
         className={`peer w-full px-4 pt-5 pb-2 border rounded-lg bg-white text-gray-700 
           focus:outline-none focus:ring-2
           ${

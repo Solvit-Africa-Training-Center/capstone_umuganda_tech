@@ -9,6 +9,10 @@ import OtpVerifyPage from './pages/OtpVerifyPage';
 import LeaderInfo from './pages/LeaderInfo';
 import Signupsuccess from './pages/Signupsuccess';
 import Volunteerinfo from './components/landingPage/Volunteerinfo';
+import Advisor_ai from './pages/Advisor_ai';
+import Report from './pages/Report';
+import Projectmanagement from './pages/Projectmanagement';
+import Participant from './pages/Participant';
 
 
 const Layout = () => {
@@ -34,6 +38,11 @@ const App = () => (
       <Route path="/signup-success" element={<Signupsuccess />} />
       <Route path="/leader_post" element={<LeaderInfo />} />
       <Route path="/Volunteer-signup" element={<Volunteerinfo />} />
+      <Route path="/Advisor-ai" element={<Advisor_ai/>} />
+      <Route path="/Report" element={<Report/>} />
+      <Route path="/Report" element={<Report/>} />
+      <Route path="/projectmanagement" element={<Projectmanagement/>} />
+       <Route path="/participant" element={<Participant/>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Router>

@@ -1,13 +1,25 @@
 import  { useState } from 'react';
 import icon from "./images/Vector (4).png"
 import Button from "./Button"
-import { Link } from "react-router-dom"
+import { api } from "../services/api";
 
 const OtpVerification = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [resending, setResending] = useState(false);
   const [resendMsg, setResendMsg] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [phoneNumber] = useState(localStorage.getItem('phoneNumber') || '');
 
+  const handleVerifyOtp = async () => {
+  const response = await api.verifyOtp(phoneNumber, otpCode);
+  // Handle response
+};
+
+const handleInputChange = (index: number, value: string) => {
+    const newOtp = otpCode.split('');
+    newOtp[index] = value;
+    setOtpCode(newOtp.join(''));
+  };
   // Dummy handlers for demonstration
   const handleConfirm = () => {};
   const handleResendOtp = () => {};
@@ -24,29 +36,31 @@ const OtpVerification = () => {
 
         <div className="flex flex-row items-center gap-3">
           {Array.from({ length: 6 }, (_, i) => (
-            <input
-              key={i}
-              type="text"
-              maxLength={1}
-              className={`
-                border py-2 px-4 rounded-md bg-white w-12 h-12 text-center
-                ${activeIndex === i
-                  ? 'border-primaryColor-900'
-                  : 'border-gray-300'}
-                focus:outline-none focus:border-primaryColor-900
-              `}
-              onFocus={() => setActiveIndex(i)}
-              onBlur={() => setActiveIndex(null)}
-            />
-          ))}
+    <input
+      key={i}
+      type="text"
+      maxLength={1}
+      value={otpCode[i] || ''}
+      onChange={(e) => handleInputChange(i, e.target.value)}
+      className={`
+        border py-2 px-4 rounded-md bg-white w-12 h-12 text-center
+        ${activeIndex === i ? 'border-primaryColor-900' : 'border-gray-300'}
+        focus:outline-none focus:border-primaryColor-900
+      `}
+      onFocus={() => setActiveIndex(i)}
+      onBlur={() => setActiveIndex(null)}
+    />
+  ))}
         </div>
 
-        <div className="flex flex-col gap-3 w-full">
-          <Button className="mt-6 w-full" onClick={handleConfirm}>
+        <div className="flex flex-col gap-3 w-full sm:w-full md:w-1/2 lg:w-1/2 items-center">
+          <div className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium px-12 rounded-2xl transition-colors mt-5">
+            <Button className="py-5 w-full" onClick={handleConfirm}>
             Confirm
           </Button>
+          </div>
           <Button
-            className="mt-4 text-accent-800 underline disabled:opacity-50"
+            className="mt-4 text-text-secondary underline disabled:opacity-50"
             onClick={handleResendOtp}
             disabled={resending}
             type="button"

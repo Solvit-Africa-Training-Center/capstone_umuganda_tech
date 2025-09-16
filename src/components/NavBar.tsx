@@ -80,7 +80,7 @@ const NavBar = () => {
             </NavLink>
           ))}
           <NavLink
-            to="/signin"
+            to="/signup"
             onClick={() => setMenuOpen(false)}
             className={({ isActive }) =>
                 isActive

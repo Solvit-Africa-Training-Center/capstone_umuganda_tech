@@ -24,8 +24,8 @@ const HeroSection: React.FC = () => {
            streamlining organization, enhancing participation, 
           and celebrating  collective effort for national development.
         </p>
-        <Link to="/signup">
-          <Button >Get Started</Button>
+        <Link to="/signup" className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5">
+          <Button className="">Get Started</Button>
         </Link>
       </motion.div>
     </section>

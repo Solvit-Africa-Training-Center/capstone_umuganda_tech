@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import {
   Search,
   User,
-  Home,
   Calendar,
   Users,
   FileText,
-  BarChart3,
-  Settings,
   MapPin,
   Clock,
   MoreHorizontal,
@@ -20,9 +17,8 @@ import {
   ChevronDown,
   Bell,
   Menu,
-  X
 } from 'lucide-react';
-import Sidebar from '../AiadvisorDashbord/Sidebar';
+// import Sidebar from '../AiadvisorDashbord/Sidebar';
 
 const ProjectManagementDashboard = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
@@ -109,14 +105,14 @@ const ProjectManagementDashboard = () => {
     }
   ]);
 
-  const sidebarItems = [
-    { name: 'Dashboard', icon: Home },
-    { name: 'My Projects', icon: FileText, count: projects.length },
-    { name: 'AI Project Advisor', icon: BarChart3 },
-    { name: 'Live Dashboard', icon: Calendar },
-    { name: 'Reporting', icon: FileText },
-    { name: 'Settings', icon: Settings }
-  ];
+  // const sidebarItems = [
+  //   { name: 'Dashboard', icon: Home },
+  //   { name: 'My Projects', icon: FileText, count: projects.length },
+  //   { name: 'AI Project Advisor', icon: BarChart3 },
+  //   { name: 'Live Dashboard', icon: Calendar },
+  //   { name: 'Reporting', icon: FileText },
+  //   { name: 'Settings', icon: Settings }
+  // ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -222,7 +218,7 @@ const ProjectManagementDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className='w-full'>
         {sidebarOpen && (
           <div

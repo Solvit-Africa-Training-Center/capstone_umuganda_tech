@@ -79,7 +79,7 @@ const Information: React.FC = () => {
       );
 
       if (response.ok) {
-        alert("🎉 Registration completed successfully. Await SMS confirmation.");
+        alert(" Registration completed successfully. Await SMS confirmation.");
         setFormData({
           firstName: "",
           lastName: "",
@@ -90,11 +90,11 @@ const Information: React.FC = () => {
         setFile(null);
       } else {
         const err = await response.json();
-        alert(`❌ Registration failed: ${err.message || "Try again later."}`);
+        alert(` Registration failed: ${err.message || "Try again later."}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("⚠️ Something went wrong. Please try again.");
+      alert(" Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

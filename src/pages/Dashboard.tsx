@@ -1,5 +1,4 @@
 import React from 'react';
-import Sidebar from '../components/LeaderDashboard/Sidebar';
 import HeaderCards from '../components/LeaderDashboard/HeaderCards';
 import UpcomingCalendar from '../components/LeaderDashboard/UpcomingCalendar';
 import NavBar from '../components/LeaderDashboard/TopNav';
@@ -20,7 +19,6 @@ const deadlines = [
 
 const Dashboard: React.FC = () => (
   <div className="flex min-h-screen bg-[#EFEDED]">
-    <Sidebar />
     <main className="flex-1 p-6 overflow-auto">
         <NavBar/>
       <h1 className="text-2xl font-bold mb-4 flex items-center">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import logo from "./images/Umuganda-removebg-preview 1.png";
+import Button from './Button';
 
 type PageRoute = '/signup' | '/signin' | '/otp-verification';
 
@@ -50,8 +51,42 @@ const AuthFlow: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageRoute>('/signup');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const isSignIn = currentPage === '/signin';
+  const isFormValid = phoneNumber.trim() !== '' && password.trim() !== '';
+
+  const handleContinue = async () => {
+    if (!isFormValid) return;
+    
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber,
+          password,
+          role: isSignIn ? 'leader' : 'volunteer'
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        window.location.href = '/dashboard';
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch {
+      setError('Connection failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="relative bg-[#F9F6F2] pb-10">
@@ -60,10 +95,10 @@ const AuthFlow: React.FC = () => {
           <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
             <div className="flex flex-row justify-center items-center">
               <img className="w-14 h-14" src={logo} alt="UmagamaTech Logo" />
-              <h2 className="text-2xl font-bold text-gray-800">UmagamaTech</h2>
+              <h2 className="text-2xl font-bold text-primaryColor-900">UmagamaTech</h2>
             </div>
             <Link
-              to="/api/users/auth/register/"
+              to="/signup"
               className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center"
             >
               <span className="text-3xl text-gray-600">→</span>
@@ -117,12 +152,21 @@ const AuthFlow: React.FC = () => {
             onChange={setPassword}
           />
 
-          <Link
-            to="/otp-verification"
-            className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5"
+          {error && (
+            <p className="text-red-500 text-sm mb-4">{error}</p>
+          )}
+
+          <Button
+            onClick={handleContinue}
+            disabled={!isFormValid || isLoading}
+            className={`font-medium py-4 px-12 rounded-2xl transition-colors mt-5 ${
+              isFormValid && !isLoading
+                ? 'bg-primaryColor-900 hover:bg-accent-900 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
-            Continue
-          </Link>
+            {isLoading ? 'Signing in...' : 'Continue'}
+          </Button>
 
           <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
             By continuing, you agree to our Terms of Service and Privacy Policy

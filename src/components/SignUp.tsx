@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
-import { api } from "../services/api";
 import Button from "./Button";
 import logo from "./images/Umuganda-removebg-preview 1.png";
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, setPhoneNumber } from '../store/slices/authSlice';
+import type { AppDispatch, RootState } from '../store/store';
 
 type AuthPage = '/signup' | '/signin' | '/otp-verification';
 
@@ -48,29 +50,53 @@ const FloatingLabelInput: React.FC<FloatingLabelProps> = ({
   );
 };
 
-const AuthFlow: React.FC = () => {
+const SignUp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<AuthPage>('/signup');
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumberState] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const [localError, setLocalError] = useState('');
 
   const isSignUp = currentPage === '/signup';
 
   const handleContinue = async () => {
-    setLoading(true);
+    if (!phoneNumber.trim()) {
+      setLocalError('Please enter your phone number');
+      return;
+    }
+    
+    // Format phone number (remove spaces, dashes, and country code)
+    const cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
+    const formattedPhone = cleanPhone.startsWith('250') ? cleanPhone.slice(3) : cleanPhone;
+    
+    console.log('Original phone:', phoneNumber);
+    console.log('Cleaned phone:', cleanPhone);
+    console.log('Formatted phone:', formattedPhone);
+    
+    if (formattedPhone.length !== 9) {
+      setLocalError('Please enter a valid 9-digit phone number');
+      return;
+    }
+    
+    setLocalError('');
+    dispatch(setPhoneNumber(formattedPhone));
+    localStorage.setItem('phoneNumber', formattedPhone);
+    
     try {
-      const response = await api.register(phoneNumber);
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Registration successful:', data.message);
-        localStorage.setItem('phoneNumber', phoneNumber);
-        window.location.href = '/api/users/auth/verify-otp/';
+      const result = await dispatch(registerUser(formattedPhone));
+      console.log('Registration result:', result);
+      
+      if (registerUser.fulfilled.match(result)) {
+        console.log('Registration successful, redirecting...');
+        window.location.href = '/otp-verification';
       } else {
-        console.error('Registration failed:', data);
+        console.error('Registration rejected:', result.payload);
+        const errorMsg = result.payload?.message || result.payload?.error || 'Failed to send OTP. Please try again.';
+        setLocalError(errorMsg);
       }
     } catch (error) {
       console.error('Registration failed:', error);
-    } finally {
-      setLoading(false);
+      setLocalError('Network error. Please try again.');
     }
   };
 
@@ -80,7 +106,7 @@ const AuthFlow: React.FC = () => {
         <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
           <div className="flex flex-row justify-center items-center">
             <img className="w-14 h-14" src={logo} alt="UmagmaTech Logo" />
-            <h2 className="text-2xl font-bold text-gray-800">UmagmaTech</h2>
+            <h2 className="text-2xl font-bold text-primaryColor-900">UmagmaTech</h2>
           </div>
           <Link
             to="/"
@@ -126,17 +152,25 @@ const AuthFlow: React.FC = () => {
         </p>
 
         <FloatingLabelInput
-          label="Enter your phone number"
-          type="text"
+          label="Enter your phone number (e.g., 788123456)"
+          type="tel"
           value={phoneNumber}
-          onChange={setPhoneNumber}
+          onChange={setPhoneNumberState}
         />
         
-        <div className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5">
-          <Button onClick={handleContinue} disabled={loading}>
-            {loading ? 'Loading...' : 'Continue'}
-          </Button>
-        </div>
+        {(error || localError) && (
+          <p className="text-red-500 text-sm mb-4">
+            {localError || error}
+          </p>
+        )}
+        
+        <Button 
+          className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5 disabled:opacity-50"
+          onClick={handleContinue} 
+          disabled={loading || !phoneNumber.trim()}
+        >
+          {loading ? 'Sending OTP...' : 'Continue'}
+        </Button>
 
         <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
           By continuing, you agree to our Terms of Service and Privacy Policy
@@ -146,7 +180,7 @@ const AuthFlow: React.FC = () => {
   );
 };
 
-export default AuthFlow;
+export default SignUp;
 
 
 

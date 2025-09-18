@@ -33,7 +33,7 @@ const VolunteerSideBar: React.FC<SidebarProps> = () => {
       </div>
 
       <aside
-        className={`bg-[#EFEDED] min-h-screen w-72 p-6 border-r border-gray-400  fixed top-0 left-0 transform transition-transform duration-300 ease-in-out ${
+        className={`bg-[#EFEDED] min-h-screen min-w-64 p-6 border-r border-gray-400  fixed top-0 left-0 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:static md:translate-x-0 z-40`}
       >

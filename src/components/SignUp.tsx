@@ -82,21 +82,46 @@ const SignUp: React.FC = () => {
     dispatch(setPhoneNumber(formattedPhone));
     localStorage.setItem('phoneNumber', formattedPhone);
     
-    try {
-      const result = await dispatch(registerUser(formattedPhone));
-      console.log('Registration result:', result);
-      
-      if (registerUser.fulfilled.match(result)) {
-        console.log('Registration successful, redirecting...');
-        window.location.href = '/otp-verification';
-      } else {
-        console.error('Registration rejected:', result.payload);
-        const errorMsg = result.payload?.message || result.payload?.error || 'Failed to send OTP. Please try again.';
-        setLocalError(errorMsg);
+    // Retry mechanism for timeout issues
+    let retryCount = 0;
+    const maxRetries = 2;
+    
+    while (retryCount <= maxRetries) {
+      try {
+        const result = await dispatch(registerUser(formattedPhone));
+        console.log('Registration result:', result);
+        
+        if (registerUser.fulfilled.match(result)) {
+          console.log('Registration successful, redirecting...');
+          window.location.href = '/otp-verification';
+          return;
+        } else {
+          console.error('Registration rejected:', result.payload);
+          const payload = result.payload as any;
+          const errorMsg = payload?.message || payload?.error || 'Failed to send OTP. Please try again.';
+          
+          // If timeout, retry; otherwise show error
+          if (errorMsg.includes('timeout') && retryCount < maxRetries) {
+            retryCount++;
+            setLocalError(`Retrying... (${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+            continue;
+          }
+          
+          setLocalError(errorMsg);
+          return;
+        }
+      } catch (error) {
+        console.error('Registration failed:', error);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setLocalError(`Retrying... (${retryCount}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          continue;
+        }
+        setLocalError('Network error. Please check your connection and try again.');
+        return;
       }
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setLocalError('Network error. Please try again.');
     }
   };
 

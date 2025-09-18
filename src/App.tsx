@@ -68,7 +68,7 @@ const App = () => (
 
         {/* Volunteer related, nested under volunteer */}
         <Route path="volunteer/*" element={<VolunteerLayout />}>
-          <Route index element={<VolunteerDashboard volunteerName="John Doe" />} />
+          <Route index element={<VolunteerDashboard  />} />
           <Route path="check-in" element={<VolunteerCheckIn />} />
           <Route path="community-hub" element={<VolunteerCommunityHub />} />
           <Route

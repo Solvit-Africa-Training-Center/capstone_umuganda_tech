@@ -1,82 +1,51 @@
-// src/types/Volunteer.ts
-
 export interface VolunteerProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  position: string;
-  sector: string;
-  profilePhotoUrl?: string;
-}
-
-export interface PasswordChange {
-  currentPassword: string;
-  newPassword: string;
-  confirmNewPassword: string;
-}
-
-export interface CommunityPost {
-  id: string;
-  author: string;
-  title: string;
-  content: string;
-  date: string;  // or Date if you convert
-}
-
-export interface ProjectCard {
   id: number;
-  title: string;
-  imageUrl: string;
-  date: string;
-  status: "Upcoming" | "Completed" | "Ongoing" | string;
-}
-
-export interface CardData {
-  id: number;
-  avatarUrl: any;
-  author: string;
-  timeAgo: string;
-  content: string;
-  commentsCount: number;
-  likesCount: number;
-  votesCount: number;
-}
-
-
-export interface Volunteer {
-  id: string;
-  firstName: string;
-  lastName: string;
   name: string;
+  avatar_url?: string;
   email: string;
-  phone?: string;
-  position?: string;
-  address?: string;
-  organization?: string;
-  sector?: string;
-  profilePhotoUrl?: string;
+  projectsCompleted: number;
+  hoursContributed: number;
+  totalProjects: number;
+  activeProjects: number;
+  joinDate?: string;
+  location?: string;
+  skills?: string[];
 }
 
-export interface PasswordChange {
-  currentPassword: string;
-  newPassword: string;
-  confirmNewPassword: string;
-}
-
-export interface EventItem {
-  id: string;
+export interface Project {
+  id: number;
   title: string;
-  image: string;
-  date: string;
-  participants: number;
-  status: "Active" | "Completed" | "Upcoming" | string;
+  description: string;
+  image_url?: string;
+  sector: string;
+  datetime: string;
+  location: string;
+  status: 'planned' | 'ongoing' | 'completed' | 'cancelled';
+  required_volunteers: number;
+  volunteer_count: number;
+  admin: number;
+  admin_name: string;
+  created_at: string;
+  is_user_registered: boolean;
+  skills: any[];
 }
 
-export interface CommunityPost {
-   id:string
-  author: string;
-  title: string;
-  content: string;
-  date: string;
+export interface FilterState {
+  search?: string;
+  status?: Project['status'] | '';
+  location?: string;
+  tab: 'all' | 'my-projects' | 'ongoing' | 'completed';
 }
 
+export interface SortState {
+  sortBy: 'datetime' | 'title' | 'volunteer_count' | 'created_at' | 'required_volunteers';
+  order: 'asc' | 'desc';
+}
+
+export interface PaginationState {
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+  total: number;
+  totalPages: number;
+}

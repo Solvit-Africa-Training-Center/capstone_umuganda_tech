@@ -8,20 +8,42 @@ export const registerUser = createAsyncThunk(
   async (phoneNumber: string, { rejectWithValue }) => {
     try {
       console.log('Sending registration request for:', phoneNumber);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for slow backend
+      
       const response = await fetch(`${BASE_URL}/api/auth/register/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: phoneNumber })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ phone_number: phoneNumber }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Error response:', errorText);
+        try {
+          const errorData = JSON.parse(errorText);
+          return rejectWithValue(errorData);
+        } catch {
+          return rejectWithValue({ message: `HTTP ${response.status}: ${errorText}` });
+        }
+      }
+      
       const data = await response.json();
       console.log('Registration response:', { status: response.status, data });
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      return rejectWithValue({ message: 'Network error' });
+      if (error.name === 'AbortError') {
+        return rejectWithValue({ message: 'Request timeout. Please try again.' });
+      }
+      return rejectWithValue({ message: `Network error: ${error.message}` });
     }
   }
 );
@@ -95,20 +117,41 @@ export const resendOtp = createAsyncThunk(
   async (phoneNumber: string, { rejectWithValue }) => {
     try {
       console.log('Resending OTP for:', phoneNumber);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+      
       const response = await fetch(`${BASE_URL}/api/auth/resend-otp/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: phoneNumber })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ phone_number: phoneNumber }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          return rejectWithValue(errorData);
+        } catch {
+          return rejectWithValue({ message: `HTTP ${response.status}: ${errorText}` });
+        }
+      }
+      
       const data = await response.json();
       console.log('Resend OTP response:', { status: response.status, data });
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Resend OTP error:', error);
-      return rejectWithValue({ message: 'Network error' });
+      if (error.name === 'AbortError') {
+        return rejectWithValue({ message: 'Request timeout. Please try again.' });
+      }
+      return rejectWithValue({ message: `Network error: ${error.message}` });
     }
   }
 );

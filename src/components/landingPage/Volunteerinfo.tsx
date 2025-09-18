@@ -70,7 +70,13 @@ const Volunteerinfo: React.FC = () => {
       const data: AuthResponse = await response.json();
 
       if (!response.ok) {
-        setApiMessage(data.message || "Registration failed");
+        // data may not match AuthResponse on error, so use type guard or 'any'
+        const errorDetail =
+          (data as any).message ||
+          (data as any).detail ||
+          (typeof data === "object" ? JSON.stringify(data) : data) ||
+          "Registration failed";
+        setApiMessage(errorDetail);
         return;
       }
 

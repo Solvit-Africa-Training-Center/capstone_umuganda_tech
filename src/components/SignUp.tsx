@@ -2,7 +2,7 @@ import logo from "./images/Umuganda-removebg-preview 1.png";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const AuthFlow: React.FC = () => {
+const SignUp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"signup" | "signin">("signup");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,7 +77,7 @@ const AuthFlow: React.FC = () => {
       localStorage.setItem("phone_number", phoneNumber);
 
       // Redirect to OTP verification page
-      navigate("/otp-verification");
+      navigate("/otp-verification", { state: { phone_number: phoneNumber } });
     } catch (error: any) {
       setApiMessage(error.message || "Something went wrong ❌");
     } finally {
@@ -85,20 +85,20 @@ const AuthFlow: React.FC = () => {
     }
   };
 
-  const AuthFormPage = ({ isSignIn = false }: { isSignIn?: boolean }) => (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full">
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[#F9F6F2] pb-10">
       <div className="flex flex-col items-center w-full">
         {/* Header */}
         <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
           <div className="flex flex-row justify-center items-center">
-            <img className="w-14 h-14" src={logo} alt="UmagamaTech Logo" />
-            <h2 className="text-2xl font-bold text-gray-800">UmagamaTech</h2>
+            <img className="w-14 h-14" src={logo} alt="UmagmaTech Logo" />
+            <h2 className="text-2xl font-bold text-primaryColor-900">UmagmaTech</h2>
           </div>
           <Link
             to="/"
             className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center"
           >
-            <span className="text-3xl text-gray-600 ">→</span>
+            <span className="text-3xl text-gray-600">→</span>
           </Link>
         </div>
 
@@ -114,9 +114,10 @@ const AuthFlow: React.FC = () => {
 
           <div className="flex bg-white border border-gray-400 rounded-2xl p-1 mb-8">
             <button
+              type="button"
               onClick={() => setCurrentPage("signup")}
               className={`px-14 py-3 text-center font-medium rounded-xl transition-colors ${
-                !isSignIn
+                currentPage === "signup"
                   ? "bg-primaryColor-900 text-white"
                   : "bg-white text-gray-600"
               }`}
@@ -124,9 +125,10 @@ const AuthFlow: React.FC = () => {
               Join as Volunteer
             </button>
             <button
+              type="button"
               onClick={() => setCurrentPage("signin")}
               className={`px-14 py-3 text-center font-medium rounded-xl transition-colors ${
-                isSignIn
+                currentPage === "signin"
                   ? "bg-primaryColor-900 text-white"
                   : "bg-white text-gray-600"
               }`}
@@ -135,54 +137,47 @@ const AuthFlow: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Role Info */}
+        <p className="text-base text-[#A3A0A0] mb-8">
+          {currentPage === "signup"
+            ? "You are joining as Volunteer"
+            : "You are joining as Leader"}
+        </p>
+
+        {/* Phone number input */}
+        <FloatingLabelInput
+          label="Enter your phone number"
+          type="text"
+          value={phoneNumber}
+          onChange={setPhoneNumber}
+        />
+
+        {/* Submit */}
+        <button
+          onClick={handleRegister}
+          disabled={loading}
+          className={`bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5 ${
+            loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {loading ? "Sending..." : "Continue"}
+        </button>
+
+        {/* Message */}
+        {apiMessage && (
+          <p className="text-sm text-center text-gray-700 mt-4">{apiMessage}</p>
+        )}
+
+        <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
+          By continuing, you agree to our Terms of Service and Privacy Policy
+        </p>
       </div>
-
-      {/* Role Info */}
-      <p className="text-base text-[#A3A0A0] mb-8">
-        {isSignIn
-          ? "You are joining in as Leader"
-          : "You are joining in as Volunteer"}
-      </p>
-
-      {/* Phone number input */}
-      <FloatingLabelInput
-        label="Enter your phone number"
-        type="text"
-        value={phoneNumber}
-        onChange={setPhoneNumber}
-      />
-
-      {/* Submit */}
-      <button
-        onClick={handleRegister}
-        disabled={loading}
-        className={`bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5 ${
-          loading ? "opacity-70 cursor-not-allowed" : ""
-        }`}
-      >
-        {loading ? "Sending..." : "Continue"}
-      </button>
-
-      {/* Message */}
-      {apiMessage && (
-        <p className="text-sm text-center text-gray-700 mt-4">{apiMessage}</p>
-      )}
-
-      <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
-        By continuing, you agree to our Terms of Service and Privacy Policy
-      </p>
-    </div>
-  );
-
-  return (
-    <div className="relative bg-[#F9F6F2] pb-10">
-      {currentPage === "signup" ? (
-        <AuthFormPage isSignIn={true} />
-      ) : (
-        <AuthFormPage isSignIn={false} />
-      )}
     </div>
   );
 };
 
-export default AuthFlow;
+export default SignUp;
+
+
+

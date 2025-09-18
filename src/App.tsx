@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 import NotFound from './pages/NotFound';
 import LandingPage from './pages/Home';
 import ScrollToAnchor from './components/ScrollToAnchor';
 import NavBar from './components/NavBar';
-import Footer from "./components/landingPage/Footer"
+import Footer from "./components/landingPage/Footer";
 import SignUpPage from './pages/SignUpPage';
 import OtpVerifyPage from './pages/OtpVerifyPage';
 import LeaderInfo from './pages/LeaderInfo';
@@ -14,23 +16,21 @@ import Projectmanagement from './pages/Projectmanagement';
 import Participant from './pages/Participant';
 import LeaderDashboard from './pages/Dashboard';
 import SignInPage from './pages/SignInPage';
+import CompleteRegistration from './pages/CompleteRegistration';
 import VolunteerDashboard from './components/volunteerDashboard/VolunteerDashboard';
 import VolunteerCheckIn from './components/volunteerDashboard/VolunteerCheckIn';
 import VolunteerCommunityHub from './components/volunteerDashboard/VolunteerCommunityHub';
 import VolunteerSettings from './components/volunteerDashboard/VolunteerSettings';
 import VolunteerSideBar from './components/volunteerDashboard/volunteerSideBar';
+import Sidebar from './components/LeaderDashboard/Sidebar';
 
-
-const Layout = () => {
-  return (
-    <>
-      <NavBar />
-      <Outlet />
+const Layout = () => (
+  <>
+    <NavBar />
+    <Outlet />
     <Footer />
-
-    </>
-  );
-}
+  </>
+);
 
 const VolunteerLayout = () => {
   return (
@@ -41,51 +41,86 @@ const VolunteerLayout = () => {
   );
 };
 
+const LeaderLayout = () => (
+  <div className="flex">
+    <Sidebar />
+    <div className="flex-grow">
+      <Outlet />
+    </div>
+  </div>
+);
 
 const App = () => (
-  <Router>
-    <ScrollToAnchor />
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<LandingPage />} />
-      </Route>
-      <Route path="/signup" element={<SignUpPage />} />
-      <Route path="/signin" element={<SignInPage />} />
-      <Route path="/otp-verification" element={<OtpVerifyPage />} />
-      <Route path="/leader_post" element={<LeaderInfo />} />
-      <Route path="/leader" element={<LeaderDashboard />} />
-      {/* Volunteer Routes */}
-      <Route path="/volunteer/*" element={<VolunteerLayout />}>
-        <Route index element={<VolunteerDashboard volunteerName="John Doe" />} />
-        <Route path="check-in" element={<VolunteerCheckIn />} />
-        <Route path="community-hub" element={<VolunteerCommunityHub />} />
-        <Route path="settings" element={
-        <VolunteerSettings 
-          volunteer={{
-          id: "1",
-          firstName: "Joh",
-          lastName: "Doe",
-          name: "John Doe",
-          email: "john@example.com", 
-          phone: "+250123456789",
-          address: "Kigali, Rwanda",
-          organization: "UmugandaTech"
-          }}
-         onLogout={() => console.log('Logout')}
-        />
-       } />
-      </Route>
+  <Provider store={store}>
+    <Router>
+      <ScrollToAnchor />
+      <Routes>
+        {/* Public / landing / auth */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<LandingPage />} />
+        </Route>
+         <Route path="signup" element={<SignUpPage />} />
+          <Route path="signin" element={<SignInPage />} />
+          <Route path="otp-verification" element={<OtpVerifyPage />} />
+          <Route path="complete-registration" element={<CompleteRegistration />} />
+          <Route path="leader_post" element={<LeaderInfo />} />
+          <Route path="Volunteer-signup" element={<Volunteerinfo />} />
 
-      <Route path="/Volunteer-signup" element={<Volunteerinfo />} />
-      <Route path="/Advisor-ai" element={<Advisor_ai/>} />
-      <Route path="/Report" element={<Report/>} />
-      <Route path="/Report" element={<Report/>} />
-      <Route path="/projectmanagement" element={<Projectmanagement/>} />
-       <Route path="/participant" element={<Participant/>} />
-      <Route path="/leader_dashboard" element={<LeaderDashboard />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </Router>
+        {/* Volunteer related, nested under volunteer */}
+        <Route path="volunteer/*" element={<VolunteerLayout />}>
+          <Route index element={<VolunteerDashboard volunteerName="John Doe" />} />
+          <Route path="check-in" element={<VolunteerCheckIn />} />
+          <Route path="community-hub" element={<VolunteerCommunityHub />} />
+          <Route
+            path="settings"
+            element={
+              <VolunteerSettings
+                volunteer={{
+                  id: "1",
+                  firstName: "Joh",
+                  lastName: "Doe",
+                  name: "John Doe",
+                  email: "john@example.com",
+                  phone: "+250123456789",
+                  address: "Kigali, Rwanda",
+                  organization: "UmugandaTech",
+                }}
+                onLogout={() => console.log("Logout")}
+              />
+            }
+          />
+        </Route>
+
+        {/* Leader related */}
+        <Route path="leader/*" element={<LeaderLayout />}>
+          <Route index element={<LeaderDashboard />} />
+          <Route path="projects" element={<Projectmanagement />} />
+          <Route path="ai-advisor" element={<Advisor_ai />} />
+          <Route path="live-dashboard" element={<Participant />} />
+          <Route path="reporting" element={<Report />} />
+          <Route
+            path="settings"
+            element={
+              <VolunteerSettings
+                volunteer={{
+                  id: "1",
+                  firstName: "Joh",
+                  lastName: "Doe",
+                  name: "John Doe",
+                  email: "john@example.com",
+                  phone: "+250123456789",
+                  address: "Kigali, Rwanda",
+                  organization: "UmugandaTech",
+                }}
+                onLogout={() => console.log("Logout")}
+              />
+            }
+          />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  </Provider>
 );
 
 export default App;

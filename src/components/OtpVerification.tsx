@@ -98,6 +98,7 @@ const OtpVerification = () => {
             <input
               key={i}
               type="text"
+              inputMode="numeric"
               maxLength={1}
               value={digit}
               onChange={(e) => handleChange(e.target.value, i)}
@@ -126,7 +127,7 @@ const OtpVerification = () => {
           <Button
             className="mt-4 text-accent-800  rounded-md underline disabled:opacity-50"
             onClick={handleResendOtp}
-            disabled={resending}
+            disabled={loading}
             type="button"
           >
             {resending ? "Resending..." : "Resend OTP"}

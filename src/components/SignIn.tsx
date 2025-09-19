@@ -1,147 +1,176 @@
 import logo from "./images/Umuganda-removebg-preview 1.png"
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from "react-router-dom";
+import { useAuth } from '../hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 
-const AuthFlow: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'signup' | 'signin' | 'otp-verification'>('signup');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
-
-  const FloatingLabelInput = ({
-    label,
-    type = "number",
-    value,
-    onChange
-  }: {
-    label: string;
-    type?: string;
-    value: string;
-    onChange: (value: string) => void;
-  }) => {
-    const [isFocused, setIsFocused] = useState(false);
-
-    return (
-      <div className="relative mb-4">
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          className={`border py-5 px-4 w-full md:w-[500px] rounded-2xl hover:border-primaryColor-900 outline-none transition-colors ${
-            isFocused || value ? 'border-accent-900' : 'border-gray-300'
-          }`}
-        />
-        <label className={`absolute left-4 transition-all duration-200 pointer-events-none ${
-          isFocused || value
-            ? 'top-0 -translate-y-1/2 text-sm text-green-500 bg-[#F9F6F2] px-2'
-            : 'top-1/2 -translate-y-1/2 text-gray-500'
-        }`}>
-          {label}
-        </label>
-      </div>
-    );
-  };
-
-  const AuthFormPage = ({ isSignIn = false }: { isSignIn?: boolean }) => (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full">
-      <div className="flex flex-col items-center w-full">
-        <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
-          <div className="flex flex-row justify-center items-center">
-            <img className="w-14 h-14" src={logo} alt="UmagamaTech Logo" />
-            <h2 className="text-2xl font-bold text-gray-800">UmagamaTech</h2>
-          </div>
-          <Link
-            to="/signup"
-            className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center"
-          >
-            <span className="text-3xl text-gray-600 ">→</span>
-          </Link>
-        </div>
-
-        <div className="bg-[#F9F6F2] flex flex-col items-center justify-center pt-7 w-full">
-          <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-            Welcome To UmagamaTech
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Building our community, together
-          </p>
-          <h1 className="text-2xl font-bold text-gray-800 mt-10 mb-4">
-        Sign In 
-      </h1>
-
-          <div className="flex bg-white border border-gray-400 rounded-2xl p-1 mb-8">
-            <button
-              onClick={() => setCurrentPage('signup')}
-              className={`px-14 py-3 text-center font-medium rounded-xl transition-colors ${
-                !isSignIn
-                  ? 'bg-primaryColor-900 text-white'
-                  : 'bg-white text-gray-600'
-              }`}
-            >
-              Join as Volunteer
-            </button>
-            <button
-              onClick={() => setCurrentPage('signin')}
-              className={`px-14 py-3 text-center font-medium rounded-xl transition-colors ${
-                isSignIn
-                  ? 'bg-primaryColor-900 text-white'
-                  : 'bg-white text-gray-600'
-              }`}
-            >
-              Join as Leader
-            </button>
-          </div>
-        </div>
-      </div>
-
-      
-      <p className="text-base text-[#A3A0A0] mb-8">
-        {isSignIn ? 'You are joining in as Leader' : 'You are joining in as Volunteer'}
-      </p>
-
-      <FloatingLabelInput
-        label="Enter your phone number"
-        type="number"
-        value={phoneNumber}
-        onChange={setPhoneNumber}
+const FloatingLabelInput = React.memo(({
+  label,
+  type = "text",
+  value,
+  onChange,
+  error,
+  required = false
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  required?: boolean;
+}) => {
+  return (
+    <div className="relative mb-4">
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={label + (required ? ' *' : '')}
+        required={required}
+        className={`border py-5 px-4 w-full md:w-[500px] rounded-2xl hover:border-primaryColor-900 outline-none transition-colors focus:border-accent-900 ${
+          error ? 'border-red-500' : 'border-gray-300'
+        }`}
       />
-
-      <FloatingLabelInput
-        label="Enter your password"
-        type="password"
-        value={password}
-        onChange={setPassword}
-      />
-
-      {/* {!isSignIn && (
-        <FloatingLabelInput
-          label="Confirm your password"
-          type="password"
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-        />
-      )} */}
-
-      <Link
-        to="/otp-verification"
-        className="bg-primaryColor-900 hover:bg-accent-900 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5"
-      >
-        {isSignIn ? 'Continue' : 'Continue'}
-      </Link>
-
-      <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
-        By continuing, you agree to our Terms of Service and Privacy Policy
-      </p>
+      {error && <p className="text-red-500 text-sm mt-1 ml-2">{error}</p>}
     </div>
   );
+});
+
+const SignIn: React.FC = () => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const { login, isLoading, error, clearError } = useAuth();
+
+  const handlePhoneChange = useCallback((value: string) => setPhoneNumber(value), []);
+  const handlePasswordChange = useCallback((value: string) => setPassword(value), []);
+
+  useEffect(() => {
+    if (error) {
+      let errorMessage = 'Invalid credentials';
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        if (error.detail) {
+          errorMessage = error.detail;
+        } else if (error.non_field_errors) {
+          errorMessage = Array.isArray(error.non_field_errors) ? error.non_field_errors[0] : error.non_field_errors;
+        } else if (error.phone_number) {
+          errorMessage = Array.isArray(error.phone_number) ? error.phone_number[0] : error.phone_number;
+        } else if (error.password) {
+          errorMessage = Array.isArray(error.password) ? error.password[0] : error.password;
+        }
+      }
+      setErrors({ general: errorMessage });
+    }
+  }, [error]);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!phoneNumber.trim()) newErrors.phone = 'Phone number is required';
+    else if (!/^\d{9}$/.test(phoneNumber.replace(/\D/g, ''))) {
+      newErrors.phone = 'Please enter a valid 9-digit phone number';
+    }
+    
+    if (!password) newErrors.password = 'Password is required';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearError();
+    
+    if (!validateForm()) return;
+
+    await login(phoneNumber, password);
+  };
 
   return (
-    <div className="relative bg-[#F9F6F2] pb-10">
-      {currentPage === 'signin' ? <AuthFormPage isSignIn={true} /> : <AuthFormPage isSignIn={false} />}
+    <div className="relative bg-[#F9F6F2] pb-10 min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen w-full">
+        {/* Header */}
+        <div className="flex flex-col items-center w-full">
+          <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
+            <div className="flex flex-row justify-center items-center">
+              <img className="w-14 h-14" src={logo} alt="UmugandaTech Logo" />
+              <h2 className="text-2xl font-bold text-gray-800">UmugandaTech</h2>
+            </div>
+            <Link
+              to="/"
+              className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-2xl text-gray-600">×</span>
+            </Link>
+          </div>
+
+          <div className="bg-[#F9F6F2] flex flex-col items-center justify-center pt-7 w-full">
+            <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+              Welcome Back!
+            </h1>
+            <p className="text-lg text-gray-600 mb-8">
+              Sign in to continue your community impact
+            </p>
+            <h1 className="text-2xl font-bold text-gray-800 mt-10 mb-8">
+              Sign In
+            </h1>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col items-center">
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 w-full md:w-[500px]">
+              {errors.general}
+            </div>
+          )}
+
+          <FloatingLabelInput
+            label="Phone number (e.g., 788123456)"
+            type="tel"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            error={errors.phone}
+            required
+          />
+
+          <FloatingLabelInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+            error={errors.password}
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-primaryColor-900 hover:bg-accent-900 disabled:bg-gray-400 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5 flex items-center gap-2"
+          >
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Sign In
+          </button>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-primaryColor-900 hover:underline font-medium">
+                Sign Up
+              </Link>
+            </p>
+          </div>
+        </form>
+
+        <p className="text-sm text-gray-600 pt-6 font-semibold px-4 md:px-0 text-center max-w-md">
+          By signing in, you agree to our Terms of Service and Privacy Policy
+        </p>
+      </div>
     </div>
   );
 };
 
-export default AuthFlow;
+export default SignIn;

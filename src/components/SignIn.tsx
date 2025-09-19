@@ -21,7 +21,7 @@ const AuthFlow: React.FC = () => {
     onChange,
     numericOnly = false,
   }: {
-    label: string
+    label: string;
     type?: string;
     value: string;
     onChange: (value: string) => void;
@@ -87,7 +87,7 @@ const AuthFlow: React.FC = () => {
       if (res.data.user.role === "leader") {
         navigate("/leader");
       } else {
-        navigate("/volunteer");
+        navigate("/volunteer"); 
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials. Try again.");
@@ -106,7 +106,7 @@ const AuthFlow: React.FC = () => {
           </div>
           <Link
             to="/signup"
-            className="h-11 w-11 flex rounded-full border border-gray-300 items-center justify-center"
+            className="h-11 w-11 flex rounded-full border bg-primaryColor-900 border-gray-300 items-center justify-center"
           >
             <span className="text-3xl text-gray-600">→</span>
           </Link>

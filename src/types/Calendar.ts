@@ -10,3 +10,11 @@ export interface Reminder {
 export interface Props {
   deadlines?: Date[];
 }
+
+// Example slice initial state
+const initialState = {
+  items: [],
+  loading: false,
+  error: null,
+  // ...other fields
+};

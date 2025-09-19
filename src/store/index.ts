@@ -1,12 +1,12 @@
-// src/store.ts
+// src/store/index.ts
 import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../slices/authSlice';
 import projectsReducer from '../features/projects/projectSlice';
-import authSlice from './slices/authSlice';
 
 export const store = configureStore({
   reducer: {
-     auth: authSlice,
-    projects: projectsReducer, // <-- this must match 'state.projects'
+    auth: authReducer,
+    projects: projectsReducer,   // make sure this key matches state.projects
   },
 });
 

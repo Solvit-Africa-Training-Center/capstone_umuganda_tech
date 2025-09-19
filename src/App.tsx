@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { store } from './store/store';
+import { store } from './store';
 import NotFound from './pages/NotFound';
 import LandingPage from './pages/Home';
 import ScrollToAnchor from './components/ScrollToAnchor';

@@ -2,6 +2,8 @@ import logo from "./images/Umuganda-removebg-preview 1.png";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+const API_BASE_URL = "https://umuganda-tech-backend.onrender.com";
+
 const SignUp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"signup" | "signin">("signup");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -59,7 +61,7 @@ const SignUp: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://umuganda-tech-backend.onrender.com/api/users/auth/register/",
+        `${API_BASE_URL}/api/users/auth/register/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,14 +71,17 @@ const SignUp: React.FC = () => {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Registration failed");
+      if (!response.ok) {
+        setApiMessage(data.message || data.detail || "Registration failed");
+        return;
+      }
 
       setApiMessage(data.message || "OTP sent ✅");
 
       // Save phone number to localStorage so OTP page can use it
       localStorage.setItem("phone_number", phoneNumber);
 
-      // Redirect to OTP verification page
+      // Redirect to OTP verification page, passing phone number in state
       navigate("/otp-verification", { state: { phone_number: phoneNumber } });
     } catch (error: any) {
       setApiMessage(error.message || "Something went wrong ❌");
@@ -148,7 +153,7 @@ const SignUp: React.FC = () => {
         {/* Phone number input */}
         <FloatingLabelInput
           label="Enter your phone number"
-          type="text"
+          type="tel"
           value={phoneNumber}
           onChange={setPhoneNumber}
         />

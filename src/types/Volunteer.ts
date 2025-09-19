@@ -1,3 +1,11 @@
+// CardData type for community post cards
+export interface CardData {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  date: string;
+}
 export interface VolunteerProfile {
   id: number;
   name: string;

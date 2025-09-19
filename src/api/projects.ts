@@ -1,6 +1,3 @@
-// import api from "./api";
-// import { Project } from "../types";
-
 import type { Project } from "../types";
 import api from "./api";
 

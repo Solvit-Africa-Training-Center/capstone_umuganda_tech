@@ -35,6 +35,19 @@ export const fetchSortedProjects = createAsyncThunk(
         });
       }
       console.log('API Response:', response.data);
+      
+      // Debug image URLs in projects
+      const projects = response.data.results || response.data;
+      if (Array.isArray(projects)) {
+        console.log('Projects with image info:');
+        projects.forEach((project, index) => {
+          console.log(`Project ${index + 1}: ${project.title}`);
+          console.log(`  - ID: ${project.id}`);
+          console.log(`  - image_url: ${project.image_url}`);
+          console.log(`  - Has image: ${!!project.image_url}`);
+        });
+      }
+      
       return response.data;
     } catch (error: any) {
       console.error('API Error:', error.response?.data || error.message);
@@ -98,9 +111,19 @@ const volunteerDashboardSlice = createSlice({
       .addCase(fetchSortedProjects.fulfilled, (state, action) => {
         state.loading = false;
         // Handle both paginated and non-paginated responses
-        state.projects = action.payload.results || action.payload;
+        const projects = action.payload.results || action.payload;
+        state.projects = projects;
         state.pagination.totalPages = action.payload.total_pages ?? 1;
         state.pagination.total = action.payload.count ?? (action.payload.length || 0);
+        
+        // Debug projects in Redux store
+        console.log('Projects stored in Redux:', projects);
+        if (Array.isArray(projects)) {
+          console.log(`Total projects: ${projects.length}`);
+          projects.forEach((project, index) => {
+            console.log(`Redux Project ${index + 1}: ${project.title} - Image: ${project.image_url}`);
+          });
+        }
       })
       .addCase(fetchSortedProjects.rejected, (state, action) => {
         state.loading = false;

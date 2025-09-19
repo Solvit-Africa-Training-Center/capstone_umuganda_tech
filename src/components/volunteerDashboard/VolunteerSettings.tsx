@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
-import type { Volunteer, PasswordChange } from "../../types/Volunteer";
 import { LogOut } from 'lucide-react';
 import out from "../../images/volunteer/Vector (5).png";
 import profileuser from "../../images/volunteer/ix_user-profile-filled.png"
 import download from "../../images/volunteer/material-symbols_upload.png"
+
+interface Volunteer {
+  firstName: string;
+  lastName: string;
+  email: string;
+  position?: string;
+  sector?: string;
+  profilePhotoUrl?: string;
+}
+
+interface PasswordChange {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
 
 interface Props {
   volunteer: Volunteer;
@@ -35,7 +49,7 @@ const VolunteerSettings: React.FC<Props> = ({ volunteer, onLogout }) => {
   }, [volunteer]);
 
   const handleProfileChange = (field: keyof Volunteer, value: string) => {
-    setProfile(prev => ({
+    setProfile((prev: Volunteer) => ({
       ...prev,
       [field]: value
     }));
@@ -46,14 +60,14 @@ const VolunteerSettings: React.FC<Props> = ({ volunteer, onLogout }) => {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = () => {
-        setProfile(prev => ({ ...prev, profilePhotoUrl: reader.result as string }));
+        setProfile((prev: Volunteer) => ({ ...prev, profilePhotoUrl: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleRemovePhoto = () => {
-    setProfile(prev => ({ ...prev, profilePhotoUrl: undefined }));
+    setProfile((prev: Volunteer) => ({ ...prev, profilePhotoUrl: undefined }));
   };
 
   const handleSaveProfile = () => {
@@ -183,7 +197,7 @@ const VolunteerSettings: React.FC<Props> = ({ volunteer, onLogout }) => {
                   type="password"
                   value={passwordChange.currentPassword}
                   onChange={e =>
-                    setPasswordChange(prev => ({ ...prev, currentPassword: e.target.value }))
+                    setPasswordChange((prev: PasswordChange) => ({ ...prev, currentPassword: e.target.value }))
                   }
                   className="mt-1 block w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-green-500"
                 />
@@ -194,7 +208,7 @@ const VolunteerSettings: React.FC<Props> = ({ volunteer, onLogout }) => {
                   type="password"
                   value={passwordChange.newPassword}
                   onChange={e =>
-                    setPasswordChange(prev => ({ ...prev, newPassword: e.target.value }))
+                    setPasswordChange((prev: PasswordChange) => ({ ...prev, newPassword: e.target.value }))
                   }
                   className="mt-1 block w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-green-500"
                 />
@@ -205,7 +219,7 @@ const VolunteerSettings: React.FC<Props> = ({ volunteer, onLogout }) => {
                   type="password"
                   value={passwordChange.confirmNewPassword}
                   onChange={e =>
-                    setPasswordChange(prev => ({ ...prev, confirmNewPassword: e.target.value }))
+                    setPasswordChange((prev: PasswordChange) => ({ ...prev, confirmNewPassword: e.target.value }))
                   }
                   className="mt-1 block w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-green-500"
                 />

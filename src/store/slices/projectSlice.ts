@@ -61,7 +61,7 @@ export const fetchMyProjects = createAsyncThunk(
 // Discover projects
 export const discoverProjects = createAsyncThunk(
   'projects/discoverProjects',
-  async (location?: string, { rejectWithValue, getState }) => {
+  async (location: string | undefined, { rejectWithValue, getState }) => {
     try {
       const state = getState() as any;
       const token = state.auth.token;

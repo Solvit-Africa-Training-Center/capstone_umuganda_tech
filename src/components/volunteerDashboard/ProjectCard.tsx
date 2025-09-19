@@ -6,11 +6,28 @@ interface ProjectCardProps {
   project: Project;
   onJoin?: (projectId: number) => void;
   onLeave?: (projectId: number) => void;
+  onUploadImage?: (projectId: number, file: File) => Promise<any>;
+  onDeleteImage?: (projectId: number) => Promise<void>;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, onJoin, onLeave }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Debug image URL and construct full URL if needed
+  const getImageUrl = (imageUrl: string | undefined) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `https://umuganda-tech-backend.onrender.com${imageUrl}`;
+  };
+
+  const fullImageUrl = getImageUrl(project.image_url);
+
+  React.useEffect(() => {
+    console.log('Project:', project.title);
+    console.log('Raw image_url:', project.image_url);
+    console.log('Full image URL:', fullImageUrl);
+  }, [project.image_url, fullImageUrl, project.title]);
 
   const getStatusConfig = (status: Project['status']) => {
     switch (status) {
@@ -56,7 +73,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onJoin, onLeave }) =
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 group">
       {/* Image Section */}
       <div className="relative h-48 bg-gray-100 overflow-hidden">
-        {!imageError && project.image_url ? (
+        {!imageError && fullImageUrl ? (
           <>
             {!imageLoaded && (
               <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
@@ -64,13 +81,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onJoin, onLeave }) =
               </div>
             )}
             <img
-              src={project.image_url}
+              src={fullImageUrl}
               alt={project.title}
               className={`w-full h-full object-cover duration-300 group-hover:scale-105 transform transition-transform ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
+              onLoad={() => {
+                console.log('Image loaded successfully:', fullImageUrl);
+                setImageLoaded(true);
+              }}
+              onError={(e) => {
+                console.error('Image failed to load:', fullImageUrl, e);
+                setImageError(true);
+              }}
               loading="lazy"
             />
           </>

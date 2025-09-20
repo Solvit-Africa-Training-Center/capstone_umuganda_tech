@@ -482,6 +482,14 @@ const Dashboard: React.FC = () => {
             </button>
             
             <button 
+              onClick={() => navigate('/members')}
+              className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Users className="w-5 h-5 text-primaryColor-900" />
+              <span className="font-medium">Members</span>
+            </button>
+            
+            <button 
               onClick={() => navigate('/profile')}
               className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >

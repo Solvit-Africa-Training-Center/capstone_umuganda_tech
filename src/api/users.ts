@@ -35,6 +35,17 @@ export const usersAPI = {
     await apiClient.delete('/api/users/delete-avatar/');
   },
 
+  // Leader following
+  followLeader: async (leaderId: number): Promise<{ message: string }> => {
+    const response = await apiClient.post(`/api/projects/leaders/${leaderId}/follow/`);
+    return response.data;
+  },
+
+  unfollowLeader: async (leaderId: number): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/api/projects/leaders/${leaderId}/unfollow/`);
+    return response.data;
+  },
+
   // Skills
   getSkills: async (): Promise<Skill[]> => {
     const response = await apiClient.get('/api/users/skills/');

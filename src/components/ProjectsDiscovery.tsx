@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Search, MapPin, Calendar, Users, Filter } from 'lucide-react';
+import { MapPin, Calendar, Users } from 'lucide-react';
 import type { RootState, AppDispatch } from '../store';
-import { discoverProjects, fetchProjects, setSearchQuery, setFilters } from '../store/projectsSlice';
+import { discoverProjects, fetchProjects, setSearchQuery } from '../store/projectsSlice';
 import { projectsAPI } from '../api/projects';
+import AdvancedSearch from './AdvancedSearch';
 import type { Project } from '../types/api';
 
 const ProjectsDiscovery: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { discoveryProjects, projects, isLoading, searchQuery, filters } = useSelector(
+  const { discoveryProjects, projects, isLoading, searchQuery } = useSelector(
     (state: RootState) => state.projects
   );
   const { user } = useSelector((state: RootState) => state.auth);
   
-  const [showFilters, setShowFilters] = useState(false);
-  const [localSearch, setLocalSearch] = useState(searchQuery);
   const [joiningProjects, setJoiningProjects] = useState<Set<number>>(new Set());
+  const [currentSearchQuery, setCurrentSearchQuery] = useState('');
+  const [advancedFilters, setAdvancedFilters] = useState({
+    status: '',
+    location: '',
+    date_from: '',
+    date_to: ''
+  });
 
   useEffect(() => {
     dispatch(discoverProjects());
@@ -23,14 +29,42 @@ const ProjectsDiscovery: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const searchParams = {
+      search: localSearch,
+      ...filters,
+      ...advancedFilters
+    };
+    
+    // Remove empty filters
+    Object.keys(searchParams).forEach(key => {
+      if (!searchParams[key as keyof typeof searchParams]) {
+        delete searchParams[key as keyof typeof searchParams];
+      }
+    });
+    
+    console.log('🔍 Advanced search with params:', searchParams);
     dispatch(setSearchQuery(localSearch));
-    dispatch(fetchProjects({ search: localSearch, ...filters }));
+    dispatch(fetchProjects(searchParams));
   };
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
     dispatch(setFilters(newFilters));
     dispatch(fetchProjects({ search: searchQuery, ...newFilters }));
+  };
+
+  const fetchSearchSuggestions = async (query: string) => {
+    if (query.length >= 2) {
+      try {
+        const suggestions = await projectsAPI.getSearchSuggestions(query);
+        setSearchSuggestions(suggestions);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Failed to fetch suggestions:', error);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
   };
 
   const handleJoinLeave = async (project: Project) => {
@@ -154,7 +188,7 @@ const ProjectsDiscovery: React.FC = () => {
         {description && <p className="text-gray-600">{description}</p>}
       </div>
       
-      {projects.length > 0 ? (
+      {projects && projects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
@@ -181,66 +215,24 @@ const ProjectsDiscovery: React.FC = () => {
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <form onSubmit={handleSearch} className="flex gap-4 mb-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primaryColor-900"
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-primaryColor-900 hover:bg-accent-900 text-white px-6 py-3 rounded-lg transition-colors"
-            >
-              Search
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className="border border-gray-300 hover:bg-gray-50 px-4 py-3 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-            </button>
-          </form>
-
-          {/* Filters */}
-          {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
-              <select
-                value={filters.status || ''}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primaryColor-900"
-              >
-                <option value="">All Status</option>
-                <option value="planned">Planned</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-              </select>
-              
-              <input
-                type="text"
-                placeholder="Location"
-                value={filters.location || ''}
-                onChange={(e) => handleFilterChange('location', e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primaryColor-900"
-              />
-              
-              <input
-                type="date"
-                value={filters.date_from || ''}
-                onChange={(e) => handleFilterChange('date_from', e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primaryColor-900"
-              />
-            </div>
-          )}
-        </div>
+        {/* Advanced Search Component */}
+        <AdvancedSearch 
+          onSearch={(params) => {
+            console.log('🔍 Advanced search with params:', params);
+            setCurrentSearchQuery(params.search || '');
+            setAdvancedFilters({
+              status: params.status || '',
+              location: params.location || '',
+              date_from: params.date_from || '',
+              date_to: params.date_to || ''
+            });
+            if (params.search) {
+              dispatch(setSearchQuery(params.search));
+            }
+            dispatch(fetchProjects(params));
+          }}
+          isLoading={isLoading}
+        />
 
         {/* Loading State */}
         {isLoading && (
@@ -251,16 +243,16 @@ const ProjectsDiscovery: React.FC = () => {
         )}
 
         {/* Search Results */}
-        {searchQuery && projects.length > 0 && (
+        {(currentSearchQuery || Object.values(advancedFilters).some(v => v)) && (
           <ProjectSection 
-            title={`Search Results for "${searchQuery}"`}
-            projects={projects}
-            description={`Found ${projects.length} projects matching your search`}
+            title={currentSearchQuery ? `Search Results for "${currentSearchQuery}"` : "Filtered Results"}
+            projects={projects || []}
+            description={`Found ${projects?.length || 0} projects matching your criteria`}
           />
         )}
 
-        {/* Discovery Sections */}
-        {discoveryProjects && !searchQuery && (
+        {/* Discovery Sections - Only show when no search/filters active */}
+        {discoveryProjects && !currentSearchQuery && !Object.values(advancedFilters).some(v => v) && (
           <>
             <ProjectSection 
               title="Urgent Projects"

@@ -127,12 +127,12 @@ const App = () => {
             <ProjectsDiscovery />
           </ProtectedRoute>
         } />
-        <Route path="/community" element={
+         <Route path="/community" element={
           <ProtectedRoute>
             <CommunityPosts />
           </ProtectedRoute>
         } />
-      </Route>
+      </Route> 
       
       {/* Auth routes */}
       <Route path="/signup" element={<SignUp />} />

@@ -15,6 +15,8 @@ import Dashboard from './components/Dashboard';
 import ProjectsDiscovery from './components/ProjectsDiscovery';
 import CommunityPosts from './components/CommunityPosts';
 import UserProfile from './components/UserProfile';
+import UserManagement from './components/UserManagement';
+import ImpactAchievements from './components/ImpactAchievements';
 import QRScanner from './components/QRScanner';
 
 // Leader Components
@@ -154,6 +156,18 @@ const App = () => {
       <Route path="/profile" element={
         <ProtectedRoute>
           <UserProfile />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/members" element={
+        <ProtectedRoute>
+          <UserManagement />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/impact" element={
+        <ProtectedRoute>
+          <ImpactAchievements />
         </ProtectedRoute>
       } />
       

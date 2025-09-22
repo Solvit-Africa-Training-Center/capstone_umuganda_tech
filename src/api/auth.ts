@@ -46,6 +46,12 @@ export const authAPI = {
     return response.data;
   },
 
+  // Make superuser (admin only)
+  makeSuperuser: async (userId: number): Promise<{ message: string }> => {
+    const response = await apiClient.post('/api/users/auth/make-superuser/', { user_id: userId });
+    return response.data;
+  },
+
   // Refresh token
   refreshToken: async (refresh: string): Promise<{ access: string }> => {
     const response = await apiClient.post('/api/token/refresh/', { refresh });

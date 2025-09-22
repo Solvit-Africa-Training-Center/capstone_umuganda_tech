@@ -40,7 +40,11 @@ export const createPost = createAsyncThunk(
     type?: 'feedback' | 'suggestion' | 'discussion';
   }, { rejectWithValue }) => {
     try {
-      const response = await communityAPI.createPost(postData);
+      const formattedData = {
+        ...postData,
+        type: postData.type || 'feedback' as 'feedback' | 'suggestion' | 'discussion'
+      };
+      const response = await communityAPI.createPost(formattedData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || error.message || 'Failed to create post');

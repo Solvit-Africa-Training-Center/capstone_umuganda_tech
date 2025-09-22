@@ -1,3 +1,60 @@
+// import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
+// import { useSelector, useDispatch } from 'react-redux';
+// import { useEffect } from 'react';
+// import type { RootState, AppDispatch } from './store';
+// import { initializeAuth } from './store/authSlice';
+// import NotFound from './pages/NotFound';
+// import LandingPage from './pages/Home';
+// import ScrollToAnchor from './components/ScrollToAnchor';
+// import NavBar from './components/NavBar';
+// import VolunteerSideBar from './components/volunteerSideBar';
+// import Footer from "./components/landingPage/Footer"
+// import SignUp from './components/SignUp';
+// import SignIn from './components/SignIn';
+// import OtpVerification from './components/OtpVerification';
+// import Dashboard from './components/Dashboard';
+// // import ProjectsDiscovery from './components/ProjectsDiscovery';
+// import CommunityPosts from './components/CommunityPosts';
+// import UserProfile from './components/UserProfile';
+// import QRScanner from './components/QRScanner';
+
+
+// // Leader Components
+// import CreateProject from './components/CreateProject';
+// import MyProjects from './components/MyProjects';
+// import ProjectAttendance from './components/ProjectAttendance';
+// import ProjectManagement from './components/ProjectManagement';
+// import ProjectDetail from './components/ProjectDetail';
+
+
+// Protected Route Component
+// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+//   const { isAuthenticated, isLoading, user } = useSelector((state: RootState) => state.auth);
+  
+//   console.log('🔒 ProtectedRoute Check:', {
+//     path: window.location.pathname,
+//     isAuthenticated,
+//     isLoading,
+//     hasUser: !!user,
+//     hasToken: !!localStorage.getItem('access_token'),
+//     hasUserData: !!localStorage.getItem('user_data')
+//   });
+  
+//   if (isLoading) {
+//     console.log('⏳ Auth still loading...');
+//     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+//   }
+  
+//   if (!isAuthenticated) {
+//     console.log('❌ Not authenticated, redirecting to signin');
+//     return <Navigate to="/signin" replace />;
+//   }
+  
+//   console.log('✅ Authentication passed, rendering protected content');
+//   return <>{children}</>;
+// };
+
+// export default App;
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
@@ -7,17 +64,18 @@ import NotFound from './pages/NotFound';
 import LandingPage from './pages/Home';
 import ScrollToAnchor from './components/ScrollToAnchor';
 import NavBar from './components/NavBar';
-import VolunteerSideBar from './components/volunteerSideBar';
 import Footer from "./components/landingPage/Footer"
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import OtpVerification from './components/OtpVerification';
 import Dashboard from './components/Dashboard';
-// import ProjectsDiscovery from './components/ProjectsDiscovery';
+import ProjectsDiscovery from './components/ProjectsDiscovery';
 import CommunityPosts from './components/CommunityPosts';
 import UserProfile from './components/UserProfile';
+import UserManagement from './components/UserManagement';
+import ImpactAchievements from './components/ImpactAchievements';
 import QRScanner from './components/QRScanner';
-
+import VolunteerSideBar from './components/volunteerSideBar';
 
 // Leader Components
 import CreateProject from './components/CreateProject';
@@ -25,7 +83,6 @@ import MyProjects from './components/MyProjects';
 import ProjectAttendance from './components/ProjectAttendance';
 import ProjectManagement from './components/ProjectManagement';
 import ProjectDetail from './components/ProjectDetail';
-
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -157,6 +214,12 @@ const App = () => {
             <ProjectsDiscovery />
           </ProtectedRoute>
         } /> */}
+      <Route element={<Layout />}>
+        <Route path="/projects" element={
+          <ProtectedRoute>
+            <ProjectsDiscovery />
+          </ProtectedRoute>
+        } />
         <Route path="/community" element={
           <ProtectedRoute>
             <CommunityPosts />
@@ -184,6 +247,18 @@ const App = () => {
       <Route path="/profile" element={
         <ProtectedRoute>
           <UserProfile />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/members" element={
+        <ProtectedRoute>
+          <UserManagement />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/impact" element={
+        <ProtectedRoute>
+          <ImpactAchievements />
         </ProtectedRoute>
       } />
       

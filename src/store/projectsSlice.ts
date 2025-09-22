@@ -32,7 +32,7 @@ const initialState: ProjectsState = {
 // Async thunks
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
-  async (params?: { search?: string; status?: string; location?: string }, { rejectWithValue }) => {
+  async (params: { search?: string; status?: string; location?: string } | undefined, { rejectWithValue }) => {
     try {
       const response = await projectsAPI.getProjects(params);
       return response.results;
@@ -81,6 +81,18 @@ export const createProject = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Failed to create project');
+    }
+  }
+);
+
+export const fetchDashboardStats = createAsyncThunk(
+  'projects/fetchDashboardStats',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await projectsAPI.getDashboardStats();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch dashboard stats');
     }
   }
 );
@@ -163,18 +175,6 @@ const projectsSlice = createSlice({
       });
   },
 });
-
-export const fetchDashboardStats = createAsyncThunk(
-  'projects/fetchDashboardStats',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await projectsAPI.getDashboardStats();
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch dashboard stats');
-    }
-  }
-);
 
 export const { setSearchQuery, setFilters, clearFilters, clearError } = projectsSlice.actions;
 export default projectsSlice.reducer;

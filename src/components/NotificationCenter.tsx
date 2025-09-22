@@ -22,14 +22,25 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
+      console.log('🔔 Fetching notifications...');
       const data = await notificationsAPI.getNotifications({ page_size: 20 });
       
       // Handle different response structures
       const notificationsList = Array.isArray(data) ? data : (data?.results || []);
+      console.log('📬 Notifications loaded:', notificationsList.length);
+      
+      // Log recent join notifications for debugging
+      const joinNotifications = notificationsList.filter(n => 
+        n.title?.includes('joined') || n.message?.includes('joined')
+      );
+      if (joinNotifications.length > 0) {
+        console.log('👥 Recent join notifications:', joinNotifications);
+      }
+      
       setNotifications(notificationsList);
       setUnreadCount(notificationsList.filter(n => !n.is_read).length);
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      console.error('❌ Failed to fetch notifications:', error);
       setNotifications([]);
       setUnreadCount(0);
     } finally {

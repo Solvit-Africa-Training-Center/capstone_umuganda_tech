@@ -9,4 +9,5 @@ export const publicApiClient = axios.create({
   },
 });
 
+// No auth interceptors for public client
 export default publicApiClient;

@@ -6,6 +6,8 @@ export const usersAPI = {
   getUsers: async (params?: {
     page?: number;
     page_size?: number;
+    role?: string;
+    search?: string;
   }): Promise<PaginatedResponse<User>> => {
     const response = await apiClient.get('/api/users/users/', { params });
     return response.data;
@@ -33,6 +35,17 @@ export const usersAPI = {
 
   deleteAvatar: async (): Promise<void> => {
     await apiClient.delete('/api/users/delete-avatar/');
+  },
+
+  // Leader following
+  followLeader: async (leaderId: number): Promise<{ message: string }> => {
+    const response = await apiClient.post(`/api/projects/leaders/${leaderId}/follow/`);
+    return response.data;
+  },
+
+  unfollowLeader: async (leaderId: number): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/api/projects/leaders/${leaderId}/unfollow/`);
+    return response.data;
   },
 
   // Skills

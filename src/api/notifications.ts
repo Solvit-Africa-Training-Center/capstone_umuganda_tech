@@ -23,6 +23,43 @@ export const notificationsAPI = {
     return response.data;
   },
 
+  // Get unread notifications
+  getUnreadNotifications: async (): Promise<Notification[]> => {
+    const response = await apiClient.get('/api/notifications/notifications/unread/');
+    return response.data;
+  },
+
+  // Mark multiple notifications as read
+  markMultipleAsRead: async (notificationIds: number[]): Promise<{ message: string }> => {
+    const response = await apiClient.post('/api/notifications/notifications/mark_multiple_as_read/', {
+      notification_ids: notificationIds
+    });
+    return response.data;
+  },
+
+  // Create notification
+  createNotification: async (data: {
+    user: number;
+    title: string;
+    message: string;
+    notification_type: string;
+    project?: number;
+  }): Promise<Notification> => {
+    const response = await apiClient.post('/api/notifications/notifications/', data);
+    return response.data;
+  },
+
+  // Update notification
+  updateNotification: async (id: number, data: Partial<Notification>): Promise<Notification> => {
+    const response = await apiClient.put(`/api/notifications/notifications/${id}/`, data);
+    return response.data;
+  },
+
+  // Delete notification
+  deleteNotification: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/notifications/notifications/${id}/`);
+  },
+
   // Get notification logs
   getLogs: async (params?: {
     page?: number;

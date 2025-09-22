@@ -161,5 +161,11 @@ export const projectsAPI = {
   // Delete project image
   deleteImage: async (projectId: number): Promise<void> => {
     await apiClient.delete(`/api/projects/projects/${projectId}/delete-image/`);
+  },
+
+  // View project registrations (leaders only)
+  getProjectRegistrations: async (projectId: number): Promise<any[]> => {
+    const response = await apiClient.get(`/api/projects/projects/${projectId}/registrations/`);
+    return response.data;
   }
 };

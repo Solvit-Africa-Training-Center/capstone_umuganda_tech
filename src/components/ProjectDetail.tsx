@@ -40,8 +40,22 @@ const ProjectDetail: React.FC = () => {
         setProject(prev => prev ? { ...prev, is_user_registered: false, volunteer_count: prev.volunteer_count - 1 } : null);
       } else {
         console.log('Joining project...');
-        await projectsAPI.joinProject(project.id);
-        setProject(prev => prev ? { ...prev, is_user_registered: true, volunteer_count: prev.volunteer_count + 1 } : null);
+        const response = await projectsAPI.joinProject(project.id);
+        console.log('✅ Successfully joined project:', response);
+        
+        // Update project state
+        setProject(prev => prev ? { 
+          ...prev, 
+          is_user_registered: true, 
+          volunteer_count: prev.volunteer_count + 1 
+        } : null);
+        
+        // Success message - backend automatically notifies leader
+        console.log(`🎉 Successfully joined "${project.title}"!`);
+        console.log(`📧 Leader "${project.admin_name}" has been automatically notified.`);
+        
+        // Optional: Show user feedback
+        alert(`Successfully joined "${project.title}"! The project leader has been notified.`);
       }
       console.log('Action completed successfully');
     } catch (err: any) {
@@ -218,14 +232,14 @@ const ProjectDetail: React.FC = () => {
                       : 'bg-primaryColor-900 hover:bg-accent-900 text-white'
                   } disabled:opacity-50`}
                 >
-                  {/* {isJoining ? (
+                  {isJoining ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       {project.is_user_registered ? 'Leaving Project...' : 'Joining Project...'}
                     </>
                   ) : (
                     project.is_user_registered ? 'Leave Project' : 'Join Project'
-                  )} */}
+                  )}
                 </button>
               </div>
             )}

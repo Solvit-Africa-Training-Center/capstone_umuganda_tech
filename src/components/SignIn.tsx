@@ -1,5 +1,5 @@
-// import logo from "../images/Umuganda-removebg-preview 1.png"
 import React, { useState, useEffect, useCallback } from 'react';
+import logo from "../images/Umuganda-removebg-preview 2.png"
 import { Link } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { Loader2 } from 'lucide-react';
@@ -93,8 +93,7 @@ useEffect(() => {
         <div className="flex flex-col items-center w-full">
           <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
             <div className="flex flex-row justify-center items-center">
-              {/* <img className="w-14 h-14" src={logo} alt="UmugandaTech Logo" /> */}
-              <p>um</p>
+              <img className="w-14 h-14" src={logo} alt="UmugandaTech Logo" />
               <h2 className="text-2xl font-bold text-gray-800">UmugandaTech</h2>
             </div>
             <Link

@@ -60,7 +60,7 @@ const ProjectsDiscovery: React.FC = () => {
       // Refresh projects to get updated data
       dispatch(discoverProjects());
       if (searchQuery) {
-        dispatch(fetchProjects({ search: searchQuery, ...filters }));
+        dispatch(fetchProjects({ search: searchQuery, ...advancedFilters }));
       }
     } catch (err: any) {
       console.error('Join/Leave error:', err);

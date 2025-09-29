@@ -47,8 +47,8 @@ const CommunityVoting: React.FC = () => {
               ...post, 
               is_upvoted: result.upvoted,
               upvote_count: result.upvoted 
-                ? post.upvote_count + 1 
-                : post.upvote_count - 1
+                ? (post.upvote_count || 0) + 1 
+                : Math.max(0, (post.upvote_count || 0) - 1)
             }
           : post
       ));
@@ -82,19 +82,17 @@ const CommunityVoting: React.FC = () => {
             {post.location}
           </div>
         )}
-        {post.datetime && (
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            {new Date(post.datetime).toLocaleDateString()}
-          </div>
-        )}
+        <div className="flex items-center">
+          <Calendar className="w-4 h-4 mr-1" />
+          {new Date(post.created_at).toLocaleDateString()}
+        </div>
         <div className="flex items-center">
           <User className="w-4 h-4 mr-1" />
           {post.author_name}
         </div>
         <div className="flex items-center">
           <MessageSquare className="w-4 h-4 mr-1" />
-          {post.comment_count || 0} comments
+          {post.comments_count || 0} comments
         </div>
       </div>
 
@@ -113,7 +111,7 @@ const CommunityVoting: React.FC = () => {
           ) : (
             <ThumbsUp className={`w-4 h-4 ${post.is_upvoted ? 'fill-current' : ''}`} />
           )}
-          <span className="font-medium">{post.upvote_count || 0}</span>
+          <span className="font-medium">{post.upvote_count || post.upvotes_count || 0}</span>
           <span className="text-sm">
             {post.is_upvoted ? 'Supported' : 'Support'}
           </span>
@@ -122,8 +120,8 @@ const CommunityVoting: React.FC = () => {
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <TrendingUp className="w-4 h-4" />
           <span>
-            {post.upvote_count > 10 ? 'Popular' : 
-             post.upvote_count > 5 ? 'Gaining Support' : 'New Idea'}
+            {(post.upvote_count || post.upvotes_count || 0) > 10 ? 'Popular' : 
+             (post.upvote_count || post.upvotes_count || 0) > 5 ? 'Gaining Support' : 'New Idea'}
           </span>
         </div>
       </div>

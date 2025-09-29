@@ -38,7 +38,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
       }
       
       setNotifications(notificationsList);
-      setUnreadCount(notificationsList.filter(n => !n.is_read).length);
+      setUnreadCount(notificationsList.filter(n => !n.read).length);
     } catch (error) {
       console.error('❌ Failed to fetch notifications:', error);
       setNotifications([]);
@@ -52,7 +52,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
     try {
       await notificationsAPI.markAsRead(id);
       setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+        prev.map(n => n.id === id ? { ...n, read: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -63,7 +63,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   const markAllAsRead = async () => {
     try {
       await notificationsAPI.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
@@ -138,13 +138,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                 <div
                   key={notification.id}
                   className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.is_read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                    !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                   }`}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                  onClick={() => !notification.read && markAsRead(notification.id)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className={`text-sm ${!notification.is_read ? 'font-semibold text-gray-900' : 'text-gray-800'}`}>
+                      <p className={`text-sm ${!notification.read ? 'font-semibold text-gray-900' : 'text-gray-800'}`}>
                         {notification.title}
                       </p>
                       <p className="text-sm text-gray-600 mt-1">
@@ -155,7 +155,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                       </p>
                     </div>
                     
-                    {!notification.is_read && (
+                    {!notification.read && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

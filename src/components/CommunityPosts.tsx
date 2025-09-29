@@ -207,16 +207,16 @@ const CommunityPosts: React.FC = () => {
     }
   };
 
-  const handleEditPost = (post: PostType) => {
+  const handleEditPost = (post: Post) => {
     setEditingPost(post.id);
     setEditPostData({
       title: post.title,
       description: post.description || '',
-      sector: post.sector || '',
-      datetime: post.datetime ? new Date(post.datetime).toISOString().slice(0, 16) : '',
+      sector: '',
+      datetime: '',
       location: post.location || '',
       content: post.content,
-      type: post.type || 'feedback'
+      type: (post.type as 'feedback' | 'suggestion' | 'discussion') || 'feedback'
     });
   };
 
@@ -251,7 +251,7 @@ const CommunityPosts: React.FC = () => {
     const matchesSearch = !searchQuery || 
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.user_name.toLowerCase().includes(searchQuery.toLowerCase());
+      (post.user_name || post.author_name || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   }).sort((a, b) => {
     if (sortBy === 'recent') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -269,7 +269,7 @@ const CommunityPosts: React.FC = () => {
             <div className="p-3 bg-primaryColor-600 rounded-full">
               <MessageSquare className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800">Community Discussions 🗣️</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Community Discussions</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Join conversations, ask questions, and share experiences about Umuganda activities
@@ -557,18 +557,18 @@ const CommunityPosts: React.FC = () => {
                               {/* Author Header */}
                               <div className="flex items-center gap-4 mb-6">
                                 <div className="w-14 h-14 bg-gradient-to-br from-primaryColor-600 to-primaryColor-800 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                                  {post.user_name?.charAt(0)?.toUpperCase() || 'U'}
+                                  {(post.user_name || post.author_name || 'U').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-3 mb-1">
-                                    <h4 className="font-bold text-gray-900 text-lg">{post.user_name}</h4>
+                                    <h4 className="font-bold text-gray-900 text-lg">{post.user_name || post.author_name || 'Unknown User'}</h4>
                                     <span className={`px-3 py-1 text-xs font-semibold rounded-full border flex items-center gap-1 ${
-                                      post.type === 'feedback' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                      post.type === 'suggestion' ? 'bg-green-50 text-green-700 border-green-200' :
+                                      (post.type || 'discussion') === 'feedback' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                      (post.type || 'discussion') === 'suggestion' ? 'bg-green-50 text-green-700 border-green-200' :
                                       'bg-purple-50 text-purple-700 border-purple-200'
                                     }`}>
-                                      {post.type === 'feedback' ? '💬' : post.type === 'suggestion' ? '💡' : '👥'}
-                                      {post.type.toUpperCase()}
+                                      {(post.type || 'discussion') === 'feedback' ? '💬' : (post.type || 'discussion') === 'suggestion' ? '💡' : '👥'}
+                                      {(post.type || 'discussion').toUpperCase()}
                                     </span>
                                   </div>
                                   <p className="text-sm text-gray-500 flex items-center gap-2">
@@ -578,7 +578,7 @@ const CommunityPosts: React.FC = () => {
                                   </p>
                                 </div>
                                 <div className="flex gap-2">
-                                  {user && (user.id === post.user_id || user.id === post.author) && (
+                                  {user && user.id === post.author && (
                                     <>
                                       <button
                                         onClick={() => handleEditPost(post)}

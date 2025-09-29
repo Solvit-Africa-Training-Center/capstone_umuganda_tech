@@ -1,10 +1,9 @@
-// import logo from "../images/Umuganda-removebg-preview 2.png"
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { Loader2 } from 'lucide-react';
-import type { SignUpError } from "../hooks/useAuth";
 import type { AuthErrorResponse } from "../types/Auth";
+import logo from "../images/Umuganda-removebg-preview 2.png"
 
 const FloatingLabelInput = React.memo(({
   label,
@@ -58,27 +57,6 @@ const SignUp: React.FC = () => {
   const handleConfirmPasswordChange = useCallback((value: string) => setConfirmPassword(value), []);
   const handleSectorChange = useCallback((value: string) => setSector(value), []);
   const handleExperienceChange = useCallback((value: string) => setExperience(value), []);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     let errorMessage = 'An error occurred';
-  //     if (typeof error === 'string') {
-  //       errorMessage = error;
-  //     } else if (error && typeof error === 'object') {
-  //       // Handle backend validation errors
-  //       if (error.phone_number) {
-  //         errorMessage = Array.isArray(error.phone_number) ? error.phone_number[0] : error.phone_number;
-  //       } else if (error.password) {
-  //         errorMessage = Array.isArray(error.password) ? error.password[0] : error.password;
-  //       } else if (error.detail) {
-  //         errorMessage = error.detail;
-  //       } else if (error.non_field_errors) {
-  //         errorMessage = Array.isArray(error.non_field_errors) ? error.non_field_errors[0] : error.non_field_errors;
-  //       }
-  //     }
-  //     setErrors({ general: errorMessage });
-  //   }
-  // }, [error]);
 
   useEffect(() => {
   if (error) {
@@ -147,6 +125,10 @@ const SignUp: React.FC = () => {
             sector,
             experience
           });
+          if (result.payload) {
+            console.log('Leader registration successful:', result.payload);
+            setErrors({ general: 'Registration completed successfully!' });
+          }
         } else {
           const result = await completeRegistration({
             phone_number: phoneNumber,
@@ -154,10 +136,11 @@ const SignUp: React.FC = () => {
             first_name: firstName,
             last_name: lastName
           });
+          if (result.payload) {
+            console.log('Volunteer registration successful:', result.payload);
+            setErrors({ general: 'Registration completed successfully!' });
+          }
         }
-        
-        // Registration will be handled by useAuth hook
-        console.log('Registration request completed');
       } else {
         await registerPhone(phoneNumber, userType);
       }
@@ -173,8 +156,7 @@ const SignUp: React.FC = () => {
         <div className="flex flex-col items-center w-full">
           <div className="flex flex-row items-center justify-between px-10 w-full pt-7 bg-white rounded-b-3xl shadow-lg pb-7">
             <div className="flex flex-row justify-center items-center">
-              {/* <img className="w-14 h-14" src={logo} alt="UmugandaTech Logo" /> */}
-              <p>Um</p>
+              <img className="w-14 h-14" src={logo} alt="UmugandaTech Logo" />
               <h2 className="text-2xl font-bold text-primaryColor-900">UmugandaTech</h2>
             </div>
             <Link

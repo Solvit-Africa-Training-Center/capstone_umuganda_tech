@@ -28,7 +28,8 @@ import UserProfile from './UserProfile';
 import ImpactAchievements from './ImpactAchievements';
 import QRScanner from './QRScanner';
 import { attendanceAPI, type Attendance } from '../api/attendance';
-import type { Project } from '../types/api';
+import { usersAPI } from '../api/users';
+import type { Project, Badge } from '../types/api';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -52,17 +53,14 @@ const Dashboard: React.FC = () => {
       return;
     }
     
-    // Check if user is a leader (case insensitive)
-    const isLeader = user.role?.toLowerCase() === 'leader';
+    // Check if user is a leader
+    const isLeader = user.role === 'Leader';
     
     // Fetch common data for all users
     dispatch(discoverProjects());
     dispatch(fetchDashboardStats());
     
-    // Fetch user attendances for volunteer dashboard
-    if (!isLeader) {
-      fetchUserAttendances();
-    }
+    // Data fetching is now handled in separate useEffect hooks
     
     if (isLeader) {
       console.log('Dashboard - Fetching leader data for user:', user.first_name);
@@ -97,14 +95,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const fetchUserAttendances = async () => {
-    try {
-      const attendances = await attendanceAPI.listAttendances();
-      setUserAttendances(attendances);
-    } catch (error) {
-      console.error('Failed to fetch user attendances:', error);
-    }
-  };
+
 
   const handleLogout = () => {
     logout();
@@ -112,8 +103,8 @@ const Dashboard: React.FC = () => {
 
   if (!user) return null;
 
-  // Check if user is a leader (case insensitive)
-  const isLeader = user.role?.toLowerCase() === 'leader';
+  // Check if user is a leader
+  const isLeader = user.role === 'Leader';
 
   // Leader Dashboard
   if (isLeader) {
@@ -398,43 +389,89 @@ const Dashboard: React.FC = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [joiningProjects, setJoiningProjects] = useState<Set<number>>(new Set());
   const [userAttendances, setUserAttendances] = useState<Attendance[]>([]);
-  
-  // Calculate attendance-based stats
-  const completedActivities = userAttendances.filter(a => a.check_out_time).length;
-  const totalHours = userAttendances.reduce((total, attendance) => {
-    if (attendance.check_in_time && attendance.check_out_time) {
-      const checkIn = new Date(attendance.check_in_time);
-      const checkOut = new Date(attendance.check_out_time);
-      const hours = (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60);
-      return total + hours;
-    }
-    return total;
-  }, 0);
+  const [userBadges, setUserBadges] = useState<Badge[]>([]);
+  const [userStats, setUserStats] = useState({
+    totalActivities: 0,
+    hoursContributed: 0,
+    badgesEarned: 0,
+    totalCheckIns: 0
+  });
 
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchVolunteerData = async () => {
+      try {
+        // Fetch user attendances
+        const attendances = await attendanceAPI.listAttendances();
+        setUserAttendances(attendances);
+        
+        // Fetch user badges
+        const badges = await usersAPI.getUserBadges();
+        setUserBadges(badges);
+        
+        // Calculate stats from attendances
+        const completedActivities = attendances.filter(a => a.check_out_time).length;
+        const totalHours = attendances.reduce((total, attendance) => {
+          if (attendance.check_in_time && attendance.check_out_time) {
+            const checkIn = new Date(attendance.check_in_time);
+            const checkOut = new Date(attendance.check_out_time);
+            const hours = (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60);
+            return total + Math.max(0, hours); // Ensure non-negative hours
+          }
+          return total;
+        }, 0);
+        
+        setUserStats({
+          totalActivities: completedActivities,
+          hoursContributed: Math.round(totalHours * 10) / 10, // Round to 1 decimal
+          badgesEarned: badges.length,
+          totalCheckIns: attendances.length
+        });
+        
+        console.log('Volunteer stats calculated:', {
+          attendances: attendances.length,
+          completedActivities,
+          totalHours: Math.round(totalHours * 10) / 10,
+          badges: badges.length
+        });
+      } catch (error) {
+        console.error('Failed to fetch volunteer data:', error);
+      }
+    };
+    
+    if (!isLeader) {
+      fetchVolunteerData();
+    }
+  }, [isLeader]);
+  
   const stats = [
     {
       title: 'Umuganda Activities',
-      value: completedActivities.toString(),
+      value: userStats.totalActivities.toString(),
       icon: Calendar,
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      description: 'Completed activities'
     },
     {
       title: 'Hours Contributed',
-      value: Math.round(totalHours).toString() + 'h',
+      value: userStats.hoursContributed.toString() + 'h',
       icon: Clock,
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      description: 'Community service hours'
     },
     {
       title: 'Badges Earned',
-      value: user.badges?.length?.toString() || '0',
+      value: userStats.badgesEarned.toString(),
       icon: Award,
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      description: 'Achievement badges'
     },
     {
       title: 'Check-ins',
-      value: userAttendances.length.toString(),
+      value: userStats.totalCheckIns.toString(),
       icon: QrCode,
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      description: 'Total project check-ins'
     }
   ];
 
@@ -485,12 +522,28 @@ const Dashboard: React.FC = () => {
                     <div>
                       <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{stat.title}</p>
                       <p className="text-4xl font-bold text-gray-800 mt-3">{stat.value}</p>
+                      <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
                       <div className="w-12 h-1 bg-gradient-to-r from-primaryColor-400 to-primaryColor-600 rounded-full mt-2"></div>
                     </div>
                     <div className={`${stat.color} p-4 rounded-2xl shadow-lg`}>
                       <stat.icon className="w-7 h-7 text-white" />
                     </div>
                   </div>
+                  {/* Progress indicator for some stats */}
+                  {stat.title === 'Hours Contributed' && userStats.hoursContributed > 0 && (
+                    <div className="mt-4">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress to next milestone</span>
+                        <span>{Math.min(100, Math.round((userStats.hoursContributed % 10) * 10))}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div 
+                          className="bg-green-500 h-1.5 rounded-full transition-all" 
+                          style={{ width: `${Math.min(100, (userStats.hoursContributed % 10) * 10)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -679,20 +732,14 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar Trigger Area */}
+      {/* Sidebar Trigger Area - Only on small screens */}
       <div 
-        className="fixed left-0 top-0 w-4 h-full z-30"
+        className="md:hidden fixed left-0 top-0 w-4 h-full z-30"
         onMouseEnter={() => setSidebarVisible(true)}
       ></div>
 
-      {/* Fixed Sidebar */}
-      <div 
-        className={`w-64 bg-white shadow-xl border-r border-gray-200 fixed h-full z-20 transition-transform duration-300 ease-in-out ${
-          sidebarVisible ? 'translate-x-0' : '-translate-x-60'
-        }`}
-        onMouseEnter={() => setSidebarVisible(true)}
-        onMouseLeave={() => setSidebarVisible(false)}
-      >
+      {/* Permanent Sidebar for medium+ screens */}
+      <div className="hidden md:block w-64 bg-white shadow-xl border-r border-gray-200 h-screen sticky top-0">
         {/* Header */}
         <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-primaryColor-50 to-primaryColor-100">
           <div className="flex items-center gap-3">
@@ -751,20 +798,97 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Collapsible Sidebar - Only on small screens */}
+      <div 
+        className={`md:hidden w-64 bg-white shadow-xl border-r border-gray-200 fixed h-full z-20 transition-transform duration-300 ease-in-out ${
+          sidebarVisible ? 'translate-x-0' : '-translate-x-60'
+        }`}
+        onMouseEnter={() => setSidebarVisible(true)}
+        onMouseLeave={() => setSidebarVisible(false)}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-primaryColor-50 to-primaryColor-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+            {user.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={user.first_name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-primaryColor-900 rounded-full flex items-center justify-center text-white font-bold shadow-md border-2 border-white">
+                {user.first_name[0]}{user.last_name[0]}
+              </div>
+            )}
+              <div>
+                <p className="font-semibold text-gray-800">{user.first_name} {user.last_name}</p>
+                <p className="text-sm text-primaryColor-700 capitalize font-medium">{user.role}</p>
+              </div>
+            </div>
+            {/* Close Icon */}
+            <button
+              onClick={() => setSidebarVisible(false)}
+              className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-4 flex-1 overflow-y-auto">
+          <div className="space-y-1">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group ${
+                  activeSection === item.id
+                    ? 'bg-primaryColor-600 text-white shadow-lg transform scale-[1.02]'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-primaryColor-700 hover:shadow-md'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                  activeSection === item.id ? 'text-white' : 'text-gray-500 group-hover:text-primaryColor-600'
+                }`} />
+                <span className="font-medium">{item.label}</span>
+                {activeSection === item.id && (
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+                )}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Logout Button */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 p-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 font-medium border border-transparent hover:border-red-200"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
-        sidebarVisible ? 'ml-64' : 'ml-4'
+        sidebarVisible ? 'ml-64 md:ml-0' : 'ml-4 md:ml-0'
       }`}>
         {/* Top Header */}
         <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-10">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                {/* Menu Toggle Button - Only visible when sidebar is hidden */}
+                {/* Menu Toggle Button - Only on small screens when sidebar is hidden */}
                 {!sidebarVisible && (
                   <button
                     onClick={() => setSidebarVisible(true)}
-                    className="p-2 text-gray-600 hover:text-primaryColor-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="md:hidden p-2 text-gray-600 hover:text-primaryColor-700 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -774,7 +898,7 @@ const Dashboard: React.FC = () => {
                 
                 <div>
                   <h1 className="text-3xl font-bold text-gray-800 mb-1">
-                    Umuganda Dashboard
+                    Volunteer Dashboard
                   </h1>
                   <p className="text-lg text-primaryColor-700 font-medium">
                     Muraho, {user.first_name}! 🇷🇼

@@ -1,8 +1,9 @@
 import logo from "./images/Umuganda-removebg-preview 1.png"
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import FileUpload from './FileUpload';
 
 const FloatingLabelInput = React.memo(({
   label,
@@ -37,6 +38,7 @@ const FloatingLabelInput = React.memo(({
 });
 
 const SignUp: React.FC = () => {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState<'volunteer' | 'leader'>('volunteer');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -44,10 +46,10 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [sector, setSector] = useState('');
-  const [experience, setExperience] = useState('');
+  const [verificationDocument, setVerificationDocument] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
-  const { registerPhone, completeRegistration, completeLeaderRegistration, isLoading, error, otpStep, clearError, isAuthenticated, userType: authUserType } = useAuth();
+  const { registerPhone, completeRegistration, isLoading, error, otpStep, clearError, isAuthenticated, userType: authUserType, phoneNumber: authPhoneNumber } = useAuth();
 
   const handlePhoneChange = useCallback((value: string) => setPhoneNumber(value), []);
   const handleFirstNameChange = useCallback((value: string) => setFirstName(value), []);
@@ -55,7 +57,6 @@ const SignUp: React.FC = () => {
   const handlePasswordChange = useCallback((value: string) => setPassword(value), []);
   const handleConfirmPasswordChange = useCallback((value: string) => setConfirmPassword(value), []);
   const handleSectorChange = useCallback((value: string) => setSector(value), []);
-  const handleExperienceChange = useCallback((value: string) => setExperience(value), []);
 
   useEffect(() => {
     if (error) {
@@ -72,16 +73,23 @@ const SignUp: React.FC = () => {
           errorMessage = error.detail;
         } else if (error.non_field_errors) {
           errorMessage = Array.isArray(error.non_field_errors) ? error.non_field_errors[0] : error.non_field_errors;
+        } else if (error.verification_document) {
+          errorMessage = Array.isArray(error.verification_document) ? error.verification_document[0] : error.verification_document;
         }
       }
       setErrors({ general: errorMessage });
     }
   }, [error]);
 
-  // Clear form and redirect on successful authentication
+  // Pre-fill phone number from auth state when completing registration
+  useEffect(() => {
+    if (otpStep === 'complete' && authPhoneNumber && !phoneNumber) {
+      setPhoneNumber(authPhoneNumber);
+    }
+  }, [otpStep, authPhoneNumber, phoneNumber]);
+
   useEffect(() => {
     if (isAuthenticated && otpStep === null) {
-      // Registration completed successfully, form will be cleared by navigation
       console.log('User authenticated, redirecting...');
     }
   }, [isAuthenticated, otpStep]);
@@ -103,12 +111,42 @@ const SignUp: React.FC = () => {
       
       if (authUserType === 'leader') {
         if (!sector.trim()) newErrors.sector = 'Sector is required';
-        if (!experience.trim()) newErrors.experience = 'Experience is required';
+        if (!verificationDocument) newErrors.document = 'Verification document is required';
       }
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const completeLeaderRegistration = async (data: {
+    phone_number: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    sector: string;
+    verification_document: File;
+  }) => {
+    const formData = new FormData();
+    formData.append('phone_number', data.phone_number);
+    formData.append('password', data.password);
+    formData.append('first_name', data.first_name);
+    formData.append('last_name', data.last_name);
+    formData.append('sector', data.sector);
+    formData.append('verification_document', data.verification_document);
+
+    const response = await fetch('http://localhost:8000/api/users/auth/complete-leader-registration/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw result;
+    }
+
+    return result;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -127,10 +165,16 @@ const SignUp: React.FC = () => {
             first_name: firstName,
             last_name: lastName,
             sector,
-            experience
+            verification_document: verificationDocument!
           });
+
+          // Check if registration is pending approval
+          if (result.status === 'pending_approval') {
+            navigate('/pending-approval');
+            return;
+          }
         } else {
-          const result = await completeRegistration({
+          await completeRegistration({
             phone_number: phoneNumber,
             password,
             first_name: firstName,
@@ -138,7 +182,6 @@ const SignUp: React.FC = () => {
           });
         }
         
-        // Registration will be handled by useAuth hook
         console.log('Registration request completed');
       } else {
         await registerPhone(phoneNumber, userType);
@@ -218,14 +261,27 @@ const SignUp: React.FC = () => {
             </div>
           )}
 
-          <FloatingLabelInput
-            label="Phone number (e.g., 788123456)"
-            type="tel"
-            value={phoneNumber}
-            onChange={handlePhoneChange}
-            error={errors.phone}
-            required
-          />
+          <div className="relative mb-4">
+            <input
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => otpStep !== 'complete' && handlePhoneChange(e.target.value)}
+              placeholder="Phone number (e.g., 788123456) *"
+              required
+              readOnly={otpStep === 'complete'}
+              className={`border py-5 px-4 w-full md:w-[500px] rounded-2xl outline-none transition-colors ${
+                otpStep === 'complete' 
+                  ? 'bg-gray-100 border-gray-300 cursor-not-allowed' 
+                  : 'hover:border-primaryColor-900 focus:border-accent-900'
+              } ${
+                errors.phone ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            {errors.phone && <p className="text-red-500 text-sm mt-1 ml-2">{errors.phone}</p>}
+            {otpStep === 'complete' && (
+              <p className="text-xs text-gray-500 mt-1 ml-2">Phone number verified ✓</p>
+            )}
+          </div>
 
           {otpStep === 'complete' && (
             <>
@@ -273,18 +329,15 @@ const SignUp: React.FC = () => {
                     required
                   />
 
-                  <div className="relative mb-4">
-                    <textarea
-                      value={experience}
-                      onChange={(e) => handleExperienceChange(e.target.value)}
-                      placeholder="Experience (describe your leadership experience) *"
+                  <div className="mb-4 w-full md:w-[500px]">
+                    <FileUpload
+                      onFileSelect={setVerificationDocument}
+                      error={errors.document}
                       required
-                      rows={3}
-                      className={`border py-5 px-4 w-full md:w-[500px] rounded-2xl hover:border-primaryColor-900 outline-none transition-colors focus:border-accent-900 resize-none ${
-                        errors.experience ? 'border-red-500' : 'border-gray-300'
-                      }`}
                     />
-                    {errors.experience && <p className="text-red-500 text-sm mt-1 ml-2">{errors.experience}</p>}
+                    <p className="text-xs text-gray-500 mt-2">
+                      Upload a document to verify your leadership credentials (ID, certificate, recommendation letter, etc.)
+                    </p>
                   </div>
                 </>
               )}
@@ -297,7 +350,10 @@ const SignUp: React.FC = () => {
             className="bg-primaryColor-900 hover:bg-accent-900 disabled:bg-gray-400 text-white font-medium py-4 px-12 rounded-2xl transition-colors mt-5 flex items-center gap-2"
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {otpStep === 'complete' ? 'Complete Registration' : 'Send OTP'}
+            {otpStep === 'complete' ? 
+              (authUserType === 'leader' ? 'Submit Application' : 'Complete Registration') : 
+              'Send OTP'
+            }
           </button>
 
           <div className="mt-6 text-center">

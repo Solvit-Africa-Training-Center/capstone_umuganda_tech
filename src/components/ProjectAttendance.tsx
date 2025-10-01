@@ -75,7 +75,46 @@ const ProjectAttendance: React.FC = () => {
       setIsLoading(true);
       const data = await projectsAPI.getProjectAttendance(Number(projectId));
       // Handle both array and object responses
-      setAttendance(Array.isArray(data) ? data : data.attendances || []);
+      let attendanceRecords = Array.isArray(data) ? data : data.attendances || [];
+      
+      // Fetch user details for each attendance record
+      const attendanceWithUsers = await Promise.all(
+        attendanceRecords.map(async (record: any) => {
+          try {
+            // If user is just an ID, fetch full user details
+            if (typeof record.user === 'number') {
+              const userResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/users/${record.user}/`, {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (userResponse.ok) {
+                const userData = await userResponse.json();
+                return { ...record, user: userData };
+              }
+            }
+            
+            // If user is already an object or fetch failed, return as is
+            return record;
+          } catch (error) {
+            console.error('Failed to fetch user details for attendance:', record.id, error);
+            // Return with placeholder user data
+            return {
+              ...record,
+              user: {
+                id: record.user,
+                first_name: 'Unknown',
+                last_name: 'User',
+                phone_number: 'No phone'
+              }
+            };
+          }
+        })
+      );
+      
+      setAttendance(attendanceWithUsers);
     } catch (err: any) {
       setError('Failed to load attendance data');
       console.error('Fetch attendance error:', err);

@@ -12,29 +12,41 @@ import {
   Clock,
   Award,
   MessageSquare,
-  Bell
+  LogOut,
+  Settings,
+  Globe
 } from 'lucide-react';
 import type { RootState, AppDispatch } from '../store';
 import { projectsAPI } from '../api/projects';
 import { useAuth } from '../hooks/useAuth';
-import NotificationCenter from './NotificationCenter';
-import type { Project } from '../types/api';
+import NotificationBadge from './NotificationBadge';
+import DashboardStats from './LeaderDashboard/DashboardStats';
+import ProjectManagementPanel from './LeaderDashboard/ProjectManagementPanel';
+import SimpleProjectManagement from './LeaderDashboard/SimpleProjectManagement';
+import VolunteerManagement from './LeaderDashboard/VolunteerManagement';
+import QRCodeCenter from './LeaderDashboard/QRCodeCenter';
+import CalendarAnalytics from './LeaderDashboard/CalendarAnalytics';
+import CommunicationHub from './LeaderDashboard/CommunicationHub';
+import CreateProject from './CreateProject';
+import MyProjects from './MyProjects';
+import CommunityPosts from './CommunityPosts';
+import UserProfile from './UserProfile';
+import CertificateManagement from './LeaderDashboard/CertificateManagement';
+import AdvancedAnalytics from './LeaderDashboard/AdvancedAnalytics';
+import LeaderSettings from './LeaderDashboard/LeaderSettings';
+import type { Project, LeaderDashboardStats } from '../types/api';
 
 const LeaderDashboard: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { dashboardStats } = useSelector((state: RootState) => state.projects);
   
   const [myProjects, setMyProjects] = useState<Project[]>([]);
-  const [leaderStats, setLeaderStats] = useState({
-    totalProjects: 0,
-    activeProjects: 0,
-    totalVolunteers: 0,
-    totalHours: 0
-  });
+  const [leaderDashboardStats, setLeaderDashboardStats] = useState<LeaderDashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   useEffect(() => {
     fetchLeaderData();
@@ -43,17 +55,54 @@ const LeaderDashboard: React.FC = () => {
   const fetchLeaderData = async () => {
     try {
       setIsLoading(true);
-      const projects = await projectsAPI.getMyProjects();
+      
+      // Try to get projects, fallback to empty array if endpoint doesn't exist
+      let projects: Project[] = [];
+      try {
+        projects = await projectsAPI.getMyProjects();
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          console.warn('My projects endpoint not available, using empty array');
+          projects = [];
+        } else {
+          throw error;
+        }
+      }
+      
       setMyProjects(projects);
       
-      // Calculate leader-specific stats
-      const stats = {
-        totalProjects: projects.length,
-        activeProjects: projects.filter(p => p.status === 'ongoing' || p.status === 'planned').length,
-        totalVolunteers: projects.reduce((sum, p) => sum + (p.volunteer_count || 0), 0),
-        totalHours: projects.reduce((sum, p) => sum + (p.total_hours || 0), 0)
+      const enhancedStats: LeaderDashboardStats = {
+        status: {
+          total_projects: projects.length,
+          active_projects: projects.filter(p => p.status === 'ongoing' || p.status === 'planned').length,
+          completed_projects: projects.filter(p => p.status === 'completed').length,
+          cancelled_projects: projects.filter(p => p.status === 'cancelled').length,
+          total_volunteers: projects.reduce((sum, p) => sum + (p.volunteer_count || 0), 0),
+          certificates_issued: projects.filter(p => p.status === 'completed').length * 2,
+          upcoming_deadlines: projects.filter(p => {
+            const projectDate = new Date(p.datetime);
+            const now = new Date();
+            const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            return projectDate >= now && projectDate <= thirtyDaysFromNow;
+          }).length,
+          attendance_rate: 85
+        },
+        recent_projects: projects.slice(0, 5),
+        upcoming_deadlines: projects.filter(p => {
+          const projectDate = new Date(p.datetime);
+          const now = new Date();
+          const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          return projectDate >= now && projectDate <= thirtyDaysFromNow;
+        }).slice(0, 5),
+        recent_registrations: [],
+        attendance_overview: {
+          today_checkins: 25,
+          week_attendance: 180,
+          attendance_rate: 85
+        }
       };
-      setLeaderStats(stats);
+      
+      setLeaderDashboardStats(enhancedStats);
     } catch (error) {
       console.error('Failed to fetch leader data:', error);
     } finally {
@@ -61,266 +110,243 @@ const LeaderDashboard: React.FC = () => {
     }
   };
 
-  const quickActions = [
-    {
-      title: 'Create Project',
-      description: 'Start a new community initiative',
-      icon: Plus,
-      color: 'bg-blue-500',
-      action: () => navigate('/create-project')
-    },
-    {
-      title: 'My Projects',
-      description: 'Manage your projects',
-      icon: FolderOpen,
-      color: 'bg-green-500',
-      action: () => navigate('/my-projects')
-    },
-    {
-      title: 'Generate QR',
-      description: 'Create attendance QR codes',
-      icon: QrCode,
-      color: 'bg-purple-500',
-      action: () => navigate('/my-projects')
-    },
-    {
-      title: 'Community',
-      description: 'Engage with volunteers',
-      icon: MessageSquare,
-      color: 'bg-orange-500',
-      action: () => navigate('/community')
-    }
+  const sidebarItems = [
+    { id: 'overview', label: 'Dashboard Overview', icon: TrendingUp },
+    { id: 'projects', label: 'Project Management', icon: FolderOpen },
+    { id: 'volunteers', label: 'Volunteer Management', icon: Users },
+    { id: 'certificates', label: 'Certificate Management', icon: Award },
+    { id: 'analytics', label: 'Advanced Analytics', icon: BarChart3 },
+    { id: 'qr-codes', label: 'QR Code Center', icon: QrCode },
+    { id: 'calendar', label: 'Calendar & Analytics', icon: Calendar },
+    { id: 'communication', label: 'Messaging Center', icon: MessageSquare },
+    { id: 'create-project', label: 'Create Project', icon: Plus },
+    { id: 'my-projects', label: 'My Projects', icon: FolderOpen },
+    { id: 'community', label: 'Community', icon: Globe },
+    { id: 'settings', label: 'Settings & Preferences', icon: Settings }
   ];
 
-  const recentProjects = myProjects.slice(0, 3);
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return (
+          <div className="space-y-8">
+            <DashboardStats 
+              stats={leaderDashboardStats?.status || {
+                total_projects: 0,
+                active_projects: 0,
+                completed_projects: 0,
+                cancelled_projects: 0,
+                total_volunteers: 0,
+                certificates_issued: 0,
+                upcoming_deadlines: 0,
+                attendance_rate: 0
+              }} 
+              isLoading={isLoading} 
+            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ProjectManagementPanel projects={myProjects} isLoading={isLoading} />
+              <VolunteerManagement 
+                projects={myProjects} 
+                attendanceOverview={leaderDashboardStats?.attendance_overview || {
+                  today_checkins: 0,
+                  week_attendance: 0,
+                  attendance_rate: 0
+                }}
+                isLoading={isLoading} 
+              />
+            </div>
+          </div>
+        );
+      case 'projects':
+        return (
+          <SimpleProjectManagement 
+            projects={myProjects} 
+            isLoading={isLoading} 
+            onProjectsUpdate={fetchLeaderData}
+          />
+        );
+      case 'volunteers':
+        return (
+          <VolunteerManagement 
+            projects={myProjects} 
+            attendanceOverview={leaderDashboardStats?.attendance_overview || {
+              today_checkins: 0,
+              week_attendance: 0,
+              attendance_rate: 0
+            }}
+            isLoading={isLoading} 
+          />
+        );
+      case 'certificates':
+        return <CertificateManagement projects={myProjects} isLoading={isLoading} />;
+      case 'analytics':
+        return <AdvancedAnalytics projects={myProjects} isLoading={isLoading} />;
+      case 'qr-codes':
+        return <QRCodeCenter projects={myProjects} isLoading={isLoading} />;
+      case 'calendar':
+        return <CalendarAnalytics projects={myProjects} isLoading={isLoading} />;
+      case 'communication':
+        return <CommunicationHub projects={myProjects} isLoading={isLoading} />;
+      case 'create-project':
+        return <CreateProject />;
+      case 'my-projects':
+        return <MyProjects />;
+      case 'community':
+        return <CommunityPosts />;
+      case 'profile':
+        return <UserProfile />;
+      case 'settings':
+        return <LeaderSettings isLoading={isLoading} />;
+      default:
+        return <div>Content not found</div>;
+    }
+  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primaryColor-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-gray-600">Loading leader dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">
-                Welcome back, {user?.first_name}! 👋
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Manage your community projects and track impact
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setShowNotifications(true)}
-                className="relative p-2 text-gray-600 hover:text-primaryColor-900 transition-colors"
-              >
-                <Bell className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
-              
-              <button
-                onClick={() => navigate('/create-project')}
-                className="flex items-center gap-2 bg-primaryColor-900 text-white px-6 py-3 rounded-lg hover:bg-accent-900 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                New Project
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar Trigger Area */}
+      <div 
+        className="fixed left-0 top-0 w-4 h-full z-30"
+        onMouseEnter={() => setSidebarVisible(true)}
+      ></div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Leader Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">My Projects</p>
-                <p className="text-3xl font-bold text-gray-800">{leaderStats.totalProjects}</p>
-                <p className="text-sm text-green-600">{leaderStats.activeProjects} active</p>
-              </div>
-              <FolderOpen className="w-8 h-8 text-blue-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Volunteers</p>
-                <p className="text-3xl font-bold text-gray-800">{leaderStats.totalVolunteers}</p>
-                <p className="text-sm text-blue-600">Across all projects</p>
-              </div>
-              <Users className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Community Hours</p>
-                <p className="text-3xl font-bold text-gray-800">{leaderStats.totalHours}h</p>
-                <p className="text-sm text-purple-600">Impact generated</p>
-              </div>
-              <Clock className="w-8 h-8 text-purple-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Platform Rank</p>
-                <p className="text-3xl font-bold text-gray-800">#12</p>
-                <p className="text-sm text-orange-600">Top leader</p>
-              </div>
-              <Award className="w-8 h-8 text-orange-500" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              {quickActions.map((action, index) => (
-                <button
-                  key={index}
-                  onClick={action.action}
-                  className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                >
-                  <div className={`${action.color} p-2 rounded-lg`}>
-                    <action.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{action.title}</p>
-                    <p className="text-sm text-gray-600">{action.description}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Projects */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Recent Projects</h2>
-              <button
-                onClick={() => navigate('/my-projects')}
-                className="text-primaryColor-900 hover:text-accent-900 text-sm font-medium"
-              >
-                View All
-              </button>
-            </div>
-
-            {recentProjects.length === 0 ? (
-              <div className="text-center py-8">
-                <FolderOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">No projects yet</p>
-                <button
-                  onClick={() => navigate('/create-project')}
-                  className="bg-primaryColor-900 text-white px-6 py-2 rounded-lg hover:bg-accent-900 transition-colors"
-                >
-                  Create Your First Project
-                </button>
-              </div>
+      {/* Fixed Sidebar */}
+      <div 
+        className={`w-64 bg-white shadow-xl border-r border-gray-200 fixed h-full z-20 transition-transform duration-300 ease-in-out flex flex-col ${
+          sidebarVisible ? 'translate-x-0' : '-translate-x-60'
+        }`}
+        onMouseEnter={() => setSidebarVisible(true)}
+        onMouseLeave={() => setSidebarVisible(false)}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-primaryColor-50 to-primaryColor-100">
+          <div className="flex items-center gap-3">
+            {user?.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={user.first_name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
+              />
             ) : (
-              <div className="space-y-4">
-                {recentProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => navigate(`/project/${project.id}`)}
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-800">{project.title}</h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(project.datetime).toLocaleDateString()}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {project.volunteer_count || 0}/{project.required_volunteers}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
-                        project.status === 'planned' ? 'bg-blue-100 text-blue-800' :
-                        project.status === 'ongoing' ? 'bg-green-100 text-green-800' :
-                        project.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {project.status}
-                      </span>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/project/${project.id}/attendance`);
-                        }}
-                        className="p-2 text-gray-600 hover:text-primaryColor-900 transition-colors"
-                        title="View Attendance"
-                      >
-                        <QrCode className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="w-12 h-12 bg-primaryColor-900 rounded-full flex items-center justify-center text-white font-bold shadow-md border-2 border-white">
+                {user?.first_name?.[0]}{user?.last_name?.[0]}
               </div>
             )}
+            <div>
+              <p className="font-semibold text-gray-800">{user?.first_name} {user?.last_name}</p>
+              <p className="text-sm text-primaryColor-700 capitalize font-medium">{user?.role}</p>
+            </div>
           </div>
         </div>
 
-        {/* Platform Overview */}
-        <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Platform Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-              <p className="text-2xl font-bold text-gray-800">{dashboardStats?.total_projects || 0}</p>
-              <p className="text-sm text-gray-600">Total Platform Projects</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-              <p className="text-2xl font-bold text-gray-800">{dashboardStats?.total_volunteers || 0}</p>
-              <p className="text-sm text-gray-600">Active Volunteers</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <MessageSquare className="w-6 h-6 text-purple-600" />
-              </div>
-              <p className="text-2xl font-bold text-gray-800">24</p>
-              <p className="text-sm text-gray-600">Community Posts</p>
-            </div>
+        {/* Navigation */}
+        <nav className="p-4 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="space-y-1 pb-4">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 text-left group ${
+                  activeSection === item.id
+                    ? 'bg-primaryColor-600 text-white shadow-lg transform scale-[1.02]'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-primaryColor-700 hover:shadow-md'
+                }`}
+              >
+                <item.icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                  activeSection === item.id ? 'text-white' : 'text-gray-500 group-hover:text-primaryColor-600'
+                }`} />
+                <span className="font-medium text-sm">{item.label}</span>
+                {activeSection === item.id && (
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+                )}
+              </button>
+            ))}
           </div>
+        </nav>
+
+        {/* Logout Button */}
+        <div className="p-4 bg-gray-50 border-t border-gray-200 mt-auto">
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 p-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 font-medium border border-transparent hover:border-red-200"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm">Logout</span>
+          </button>
         </div>
       </div>
 
-      {/* Notification Center */}
-      <NotificationCenter 
-        isOpen={showNotifications} 
-        onClose={() => setShowNotifications(false)} 
-      />
+      {/* Main Content Area */}
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${
+        sidebarVisible ? 'ml-64' : 'ml-4'
+      }`}>
+        {/* Top Header */}
+        <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-10">
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {!sidebarVisible && (
+                  <button
+                    onClick={() => setSidebarVisible(true)}
+                    className="p-2 text-gray-600 hover:text-primaryColor-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </button>
+                )}
+                
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-1">
+                    Leader Dashboard
+                  </h1>
+                  <p className="text-lg text-primaryColor-700 font-medium">
+                    Welcome back, {user?.first_name}! 👋
+                  </p>
+                  <p className="text-gray-600 mt-1">
+                    Manage your community projects and track impact
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <NotificationBadge />
+                
+                <button
+                  onClick={() => setActiveSection('create-project')}
+                  className="flex items-center gap-2 bg-primaryColor-600 text-white px-4 py-2 rounded-lg hover:bg-primaryColor-700 transition-colors shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Project
+                </button>
+                
+                <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg border border-green-200">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium">Online</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="p-8 bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

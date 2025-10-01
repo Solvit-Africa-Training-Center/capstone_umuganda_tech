@@ -10,6 +10,7 @@ interface AuthState {
   otpStep: 'phone' | 'verify' | 'complete' | null;
   phoneNumber: string;
   userType: 'volunteer' | 'leader' | null;
+  pendingApproval: boolean;
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
   otpStep: null,
   phoneNumber: '',
   userType: null,
+  pendingApproval: false,
 };
 
 // Check for existing token on app start
@@ -145,6 +147,12 @@ export const completeLeaderRegistration = createAsyncThunk(
       console.log('Sending complete leader registration data:', data);
       const response = await authAPI.completeLeaderRegistration(data);
       console.log('Leader registration response:', response);
+      
+      // Check if registration is pending approval
+      if (response.status === 'pending_approval') {
+        return { ...response, pendingApproval: true };
+      }
+      
       localStorage.setItem('access_token', response.access);
       localStorage.setItem('refresh_token', response.refresh);
       return response;
@@ -188,6 +196,15 @@ export const login = createAsyncThunk(
       console.log('Sending login data:', data);
       const response = await authAPI.login(data);
       console.log('Login response:', response);
+      
+      // Check if user is pending approval
+      if (response.status === 'pending_approval') {
+        return rejectWithValue({ 
+          detail: 'Your leader application is still pending approval. Please wait for approval.',
+          status: 'pending_approval'
+        });
+      }
+      
       localStorage.setItem('access_token', response.access);
       localStorage.setItem('refresh_token', response.refresh);
       return response;
@@ -200,6 +217,15 @@ export const login = createAsyncThunk(
       }
       
       const errorData = error.response?.data;
+      
+      // Handle pending approval status
+      if (errorData?.status === 'pending_approval') {
+        return rejectWithValue({ 
+          detail: 'Your leader application is still pending approval. Please wait for approval.',
+          status: 'pending_approval'
+        });
+      }
+      
       if (errorData && typeof errorData === 'object') {
         return rejectWithValue(errorData);
       }
@@ -218,6 +244,7 @@ const authSlice = createSlice({
       state.otpStep = null;
       state.phoneNumber = '';
       state.userType = null;
+      state.pendingApproval = false;
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user_data');
@@ -307,6 +334,16 @@ const authSlice = createSlice({
       })
       .addCase(completeLeaderRegistration.fulfilled, (state, action) => {
         state.isLoading = false;
+        
+        // Check if pending approval
+        if (action.payload.pendingApproval) {
+          state.pendingApproval = true;
+          state.otpStep = null;
+          state.phoneNumber = '';
+          state.userType = null;
+          return;
+        }
+        
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.otpStep = null;

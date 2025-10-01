@@ -24,9 +24,15 @@ export const notificationsAPI = {
   },
 
   // Get unread notifications
-  getUnreadNotifications: async (): Promise<Notification[]> => {
+  getUnreadNotifications: async (): Promise<PaginatedResponse<Notification>> => {
     const response = await apiClient.get('/api/notifications/notifications/unread/');
     return response.data;
+  },
+
+  // Get unread count
+  getUnreadCount: async (): Promise<{ count: number }> => {
+    const response = await apiClient.get('/api/notifications/notifications/unread/');
+    return { count: response.data.count || response.data.length || 0 };
   },
 
   // Mark multiple notifications as read

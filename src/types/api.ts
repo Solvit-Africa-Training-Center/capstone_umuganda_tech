@@ -172,3 +172,56 @@ export interface DashboardStats {
   user_projects_count: number;
   user_hours: number;
 }
+
+export interface ProjectRegistration {
+  user: User;
+  project: Project;
+  registered_at: string;
+}
+
+export interface ProjectRegistrationsResponse {
+  project: string;
+  total_registered: number;
+  registrations: ProjectRegistration[];
+}
+
+export interface QRCodeData {
+  id: number;
+  project: number;
+  qr_code: string;
+  qr_image_url: string;
+  created_at: string;
+  is_active: boolean;
+}
+
+export interface QRCodeResponse {
+  message: string;
+  qr_code: QRCodeData;
+}
+
+export interface QRCodeUsageStats {
+  total_scans: number;
+  unique_users: number;
+  last_scan: string;
+}
+
+export interface LeaderDashboardStats {
+  status: {
+    total_projects: number;
+    active_projects: number;
+    completed_projects: number;
+    cancelled_projects: number;
+    total_volunteers: number;
+    certificates_issued: number;
+    upcoming_deadlines: number;
+    attendance_rate: number;
+  };
+  recent_projects: Project[];
+  upcoming_deadlines: Project[];
+  recent_registrations: ProjectRegistration[];
+  attendance_overview: {
+    today_checkins: number;
+    week_attendance: number;
+    attendance_rate: number;
+  };
+}

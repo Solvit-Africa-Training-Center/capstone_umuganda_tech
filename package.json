@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prod": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "npm run dev",
-    "build:prod": "NODE_ENV=production npm run build"
+    "start": "npm run dev"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",

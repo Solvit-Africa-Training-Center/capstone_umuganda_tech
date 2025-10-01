@@ -260,70 +260,111 @@ const CommunityPosts: React.FC = () => {
   }) : [];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primaryColor-50 to-primaryColor-100 rounded-2xl p-8 border border-primaryColor-200">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-primaryColor-600 rounded-full">
-              <MessageSquare className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primaryColor-50">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Enhanced Header */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-primaryColor-600 via-primaryColor-700 to-primaryColor-800 rounded-3xl p-12 shadow-2xl">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+          
+          <div className="relative text-center text-white">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-lg">
+                <MessageSquare className="w-10 h-10 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-2">Community Hub</h1>
+                <div className="flex items-center justify-center gap-2 text-primaryColor-100">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="text-lg font-medium">Connect • Share • Grow</span>
+                  <Sparkles className="w-5 h-5" />
+                </div>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800">Community Discussions 🗣️</h1>
+            <p className="text-xl text-primaryColor-100 max-w-3xl mx-auto leading-relaxed">
+              Join meaningful conversations, share your experiences, and connect with fellow community members making a difference through Umuganda
+            </p>
+            
+            {/* Stats */}
+            <div className="flex items-center justify-center gap-8 mt-8 pt-8 border-t border-white/20">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">{posts?.length || 0}</div>
+                <div className="text-primaryColor-200 text-sm font-medium">Active Discussions</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">{filteredPosts.reduce((sum, post) => sum + (post.comments_count || 0), 0)}</div>
+                <div className="text-primaryColor-200 text-sm font-medium">Total Comments</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">{filteredPosts.reduce((sum, post) => sum + (post.upvotes_count || 0), 0)}</div>
+                <div className="text-primaryColor-200 text-sm font-medium">Community Upvotes</div>
+              </div>
+            </div>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Join conversations, ask questions, and share experiences about Umuganda activities
-          </p>
         </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-wrap gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search discussions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primaryColor-600 w-64"
-              />
+        {/* Enhanced Filters and Search */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/50">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+            <div className="flex flex-wrap gap-4">
+              <div className="relative group">
+                <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primaryColor-600 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search discussions, topics, or authors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 pr-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primaryColor-600 focus:ring-4 focus:ring-primaryColor-100 w-80 transition-all duration-200 bg-white/70"
+                />
+              </div>
+              
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primaryColor-600 focus:ring-4 focus:ring-primaryColor-100 bg-white/70 font-medium transition-all duration-200"
+              >
+                <option value="all">🌟 All Discussions</option>
+                <option value="discussion">🗣️ General Discussion</option>
+                <option value="feedback">💬 Project Feedback</option>
+                <option value="suggestion">💡 Ideas & Suggestions</option>
+              </select>
+              
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-primaryColor-600 focus:ring-4 focus:ring-primaryColor-100 bg-white/70 font-medium transition-all duration-200"
+              >
+                <option value="recent">🕒 Most Recent</option>
+                <option value="popular">🔥 Most Popular</option>
+                <option value="discussed">💬 Most Discussed</option>
+              </select>
             </div>
             
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primaryColor-600"
-            >
-              <option value="all">All Discussions</option>
-              <option value="discussion">🗣️ General Discussion</option>
-              <option value="feedback">💬 Project Feedback</option>
-              <option value="suggestion">💡 Ideas & Suggestions</option>
-            </select>
-            
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primaryColor-600"
-            >
-              <option value="recent">🕒 Most Recent</option>
-              <option value="popular">🔥 Most Popular</option>
-              <option value="discussed">💬 Most Discussed</option>
-            </select>
+            {user && (
+              <button
+                onClick={() => setShowCreateForm(!showCreateForm)}
+                className="bg-gradient-to-r from-primaryColor-600 to-primaryColor-700 text-white px-8 py-4 rounded-xl flex items-center gap-3 hover:from-primaryColor-700 hover:to-primaryColor-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Start Discussion</span>
+              </button>
+            )}
           </div>
           
-
-        </div>
-        
-        <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-          <span className="text-sm text-gray-600">Showing {filteredPosts.length} of {posts?.length || 0} posts</span>
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primaryColor-600" />
-            <span className="text-sm text-gray-600">{posts?.length || 0} active discussions</span>
+          <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 bg-primaryColor-50 px-4 py-2 rounded-lg">
+                <Filter className="w-4 h-4 text-primaryColor-600" />
+                <span className="text-sm font-medium text-primaryColor-800">Showing {filteredPosts.length} of {posts?.length || 0} discussions</span>
+              </div>
+              <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
+                <Users className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">{posts?.length || 0} active conversations</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
         {isLoading && (
           <div className="flex justify-center items-center py-16">
@@ -467,23 +508,25 @@ const CommunityPosts: React.FC = () => {
 
             {/* Posts List */}
             {filteredPosts.length === 0 ? (
-              <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">No discussions yet</h3>
-                <p className="text-gray-600 mb-4">Be the first to share feedback or start a discussion!</p>
+              <div className="bg-white/80 backdrop-blur-sm p-12 rounded-2xl shadow-xl text-center border border-white/50">
+                <div className="w-24 h-24 bg-gradient-to-br from-primaryColor-100 to-primaryColor-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <MessageCircle className="w-12 h-12 text-primaryColor-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">No discussions found</h3>
+                <p className="text-gray-600 mb-6 text-lg">Be the first to share your thoughts or start a meaningful conversation!</p>
                 {user && (
                   <button
                     onClick={() => setShowCreateForm(true)}
-                    className="bg-primaryColor-900 text-white px-6 py-2 rounded-lg hover:bg-accent-900 transition-colors"
+                    className="bg-gradient-to-r from-primaryColor-600 to-primaryColor-700 text-white px-8 py-4 rounded-xl hover:from-primaryColor-700 hover:to-primaryColor-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
                   >
-                    Start Discussion
+                    Start Your First Discussion
                   </button>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {filteredPosts.map((post) => (
-                  <div key={post.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group">
+                  <div key={post.id} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 overflow-hidden group hover:scale-[1.02] hover:bg-white">
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
@@ -773,6 +816,7 @@ const CommunityPosts: React.FC = () => {
             )}
           </>
         )}
+      </div>
     </div>
   );
 };

@@ -18,9 +18,12 @@ import UserProfile from './components/UserProfile';
 import UserManagement from './components/UserManagement';
 import ImpactAchievements from './components/ImpactAchievements';
 import QRScanner from './components/QRScanner';
+import PendingApproval from './pages/PendingApproval';
 
 // Leader Components
+import LeaderDashboard from './components/LeaderDashboard';
 import CreateProject from './components/CreateProject';
+import EditProject from './components/EditProject';
 import MyProjects from './components/MyProjects';
 import ProjectAttendance from './components/ProjectAttendance';
 import ProjectManagement from './components/ProjectManagement';
@@ -139,6 +142,7 @@ const App = () => {
       {/* Auth routes */}
       <Route path="/signup" element={<SignUp />} />
       <Route path="/signin" element={<SignIn />} />
+      <Route path="/pending-approval" element={<PendingApproval />} />
       
       <Route path="/otp-verification" element={
         <OTPRoute>
@@ -178,6 +182,12 @@ const App = () => {
       } />
       
       {/* Leader-only routes */}
+      <Route path="/leader-dashboard" element={
+        <LeaderRoute>
+          <LeaderDashboard />
+        </LeaderRoute>
+      } />
+      
       <Route path="/create-project" element={
         <LeaderRoute>
           <CreateProject />
@@ -192,7 +202,7 @@ const App = () => {
       
       <Route path="/project/:projectId/edit" element={
         <LeaderRoute>
-          <ProjectManagement />
+          <EditProject />
         </LeaderRoute>
       } />
       

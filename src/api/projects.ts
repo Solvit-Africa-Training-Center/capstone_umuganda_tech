@@ -6,7 +6,9 @@ import type {
   DiscoveryResponse,
   SearchSuggestions,
   DashboardStats,
-  Attendance
+  LeaderDashboardStats,
+  Attendance,
+  ProjectRegistrationsResponse
 } from '../types/api';
 
 export const projectsAPI = {
@@ -109,6 +111,12 @@ export const projectsAPI = {
     return response.data;
   },
 
+  // Leader dashboard stats
+  getLeaderDashboardStats: async (): Promise<LeaderDashboardStats> => {
+    const response = await apiClient.get('/api/projects/projects/dashboard/');
+    return response.data;
+  },
+
   // Register for project
   registerForProject: async (projectId: number): Promise<{ message: string }> => {
     const response = await apiClient.post(`/api/projects/projects/${projectId}/register/`);
@@ -150,17 +158,90 @@ export const projectsAPI = {
 
   // Upload project image
   uploadImage: async (projectId: number, image: File): Promise<Project> => {
-    const formData = new FormData();
-    formData.append('image', image);
-    const response = await apiClient.post(`/api/projects/projects/${projectId}/upload-image/`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return response.data;
+    console.log('🔧 Creating FormData for upload...');
+    
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (image.size > maxSize) {
+      throw new Error(`File too large. Maximum size is ${maxSize / 1024 / 1024}MB`);
+    }
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(image.type)) {
+      throw new Error('Invalid file type. Please upload a valid image file.');
+    }
+    
+    // Try different field names that Django might expect
+    const fieldNames = ['image', 'file', 'picture', 'photo'];
+    
+    for (const fieldName of fieldNames) {
+      try {
+        console.log(`🔄 Trying field name: '${fieldName}'`);
+        
+        const formData = new FormData();
+        formData.append(fieldName, image, image.name);
+        
+        // Debug FormData contents
+        console.log('🔍 FormData entries:');
+        for (let [key, value] of formData.entries()) {
+          console.log(`  ${key}:`, value);
+          if (value instanceof File) {
+            console.log(`    File details: name=${value.name}, size=${value.size}, type=${value.type}`);
+          }
+        }
+        
+        console.log('🚀 Sending POST request to:', `/api/projects/projects/${projectId}/upload-image/`);
+        
+        // Explicitly configure for file upload
+        const config = {
+          headers: {
+            // Don't set Content-Type - let browser set it with boundary
+          },
+          timeout: 30000, // 30 second timeout for file uploads
+        };
+        
+        const response = await apiClient.post(`/api/projects/projects/${projectId}/upload-image/`, formData, config);
+        console.log(`✅ Success with field name: '${fieldName}'`);
+        return response.data;
+        
+      } catch (error: any) {
+        console.log(`❌ Failed with field name '${fieldName}':`, error.response?.data);
+        
+        // If this is the last field name to try, throw the error
+        if (fieldName === fieldNames[fieldNames.length - 1]) {
+          throw error;
+        }
+        
+        // If it's a "No image file provided" error, try the next field name
+        if (error.response?.data?.error?.includes('No image file provided')) {
+          continue;
+        }
+        
+        // For other errors, don't retry
+        throw error;
+      }
+    }
+    
+    throw new Error('Failed to upload with any field name');
   },
 
   // Delete project image
-  deleteImage: async (projectId: number): Promise<void> => {
-    await apiClient.delete(`/api/projects/projects/${projectId}/delete-image/`);
+  deleteImage: async (projectId: number): Promise<Project> => {
+    const response = await apiClient.delete(`/api/projects/projects/${projectId}/delete-image/`);
+    return response.data;
+  },
+
+  // Generate QR code for project
+  generateQRCode: async (projectId: number): Promise<any> => {
+    const response = await apiClient.post(`/api/projects/projects/${projectId}/generate_qr_code/`);
+    return response.data;
+  },
+
+  // Get existing QR code for project
+  getQRCode: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get(`/api/projects/projects/${projectId}/get_qr_code/`);
+    return response.data;
   },
 
   // View project registrations (leaders only)

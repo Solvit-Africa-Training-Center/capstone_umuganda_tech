@@ -23,13 +23,24 @@ export const usersAPI = {
     return response.data;
   },
 
+  // Update profile (PATCH for partial updates)
+  updateProfile: async (id: number, data: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    sector?: string;
+  }): Promise<User> => {
+    const response = await apiClient.patch(`/api/users/users/${id}/`, data);
+    return response.data;
+  },
+
   // Avatar management
   uploadAvatar: async (file: File): Promise<User> => {
     const formData = new FormData();
     formData.append('avatar', file);
-    const response = await apiClient.post('/api/users/upload-avatar/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    
+    // Don't set Content-Type header - let browser set it with boundary
+    const response = await apiClient.post('/api/users/upload-avatar/', formData);
     return response.data;
   },
 
@@ -62,6 +73,20 @@ export const usersAPI = {
   getUserSkills: async (): Promise<Skill[]> => {
     const response = await apiClient.get('/api/users/user-skills/');
     return response.data;
+  },
+
+  // Add skill to user
+  addUserSkill: async (userId: number, skillId: number): Promise<any> => {
+    const response = await apiClient.post('/api/users/user-skills/', {
+      user: userId,
+      skill: skillId
+    });
+    return response.data;
+  },
+
+  // Remove skill from user
+  removeUserSkill: async (userSkillId: number): Promise<void> => {
+    await apiClient.delete(`/api/users/user-skills/${userSkillId}/`);
   },
 
   // Badges
